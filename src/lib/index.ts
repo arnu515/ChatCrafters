@@ -1,1 +1,4 @@
-// place files you want to import through the `$lib` alias in this folder.
+import { customAlphabet, urlAlphabet } from "nanoid"
+
+export const genId = customAlphabet(urlAlphabet, 24)
+
