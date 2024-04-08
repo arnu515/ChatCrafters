@@ -27,9 +27,16 @@ Make sure you're authenticated to wrangler with `pnpm exec wrangler login`
 Example:
 ```toml
 [[d1_databases]]
-binding = "db"
-database_name = "chatcrafters"
+binding = "db"  # DO NOT CHANGE THIS
+database_name = "NAME_OF_DB"
 database_id = "SOME-RANDOM-UUID"
+```
+
+Create the schema using
+```bash
+# TODO: Use a for loop to run all sql/ files
+
+pnpm exec wrangler d1 execute NAME_OF_DB --remote --file sql/0000_create-users-table.sql
 ```
 
 3. Build the app with `pnpm build`.
