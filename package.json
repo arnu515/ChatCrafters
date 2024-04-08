@@ -1,6 +1,7 @@
 {
 	"name": "cf-hackathon",
-	"version": "0.0.1",
+	"description": "Craft your conversations, meet virtual personas, connect!",
+	"version": "0.1.0",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
