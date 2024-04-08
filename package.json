@@ -41,6 +41,7 @@
 	"dependencies": {
 		"@fontsource-variable/jetbrains-mono": "^5.0.20",
 		"@fontsource-variable/overpass": "^5.0.18",
-		"@fontsource-variable/tektur": "^5.0.4"
+		"@fontsource-variable/tektur": "^5.0.4",
+		"zod": "^3.22.4"
 	}
 }
