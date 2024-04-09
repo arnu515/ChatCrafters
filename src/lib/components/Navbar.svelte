@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores'
 	import { DropdownMenu } from 'bits-ui'
-	import SparkMD5 from 'spark-md5'
 	import { MenuIcon, TelescopeIcon, BookUserIcon, SparklesIcon } from 'lucide-svelte'
 	import { fly } from 'svelte/transition'
 
@@ -108,7 +107,7 @@
 							<div class="avatar">
 								<div class="w-5 rounded-lg border-2 border-black dark:border-white">
 									<img
-										src="https://gravatar.com/avatar/{SparkMD5.hash(user.email)}?d=mp&s=64"
+										src={user.avatar_url}
 										alt="Your avatar"
 									/>
 								</div>
