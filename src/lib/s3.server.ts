@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, ObjectCannedACL, DeleteObjectCommand } from "@aws-sdk/client-s3"
+import { S3Client, PutObjectCommand, type ObjectCannedACL, DeleteObjectCommand } from "@aws-sdk/client-s3"
 import { env } from "$env/dynamic/private"
 
 export const s3 = new S3Client({
