@@ -172,7 +172,7 @@
 					name="attire"
 					id="attire"
 					required
-					minlength={50}
+					minlength={30}
 					maxlength={512}
 					placeholder="This will be used to generate your persona's picture"
 				/>
