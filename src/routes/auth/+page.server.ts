@@ -4,6 +4,8 @@ import type { User } from "$lib/dbtypes";
 import { redirect, type Actions } from "@sveltejs/kit";
 import { z } from "zod"
 import bcrypt from "bcryptjs"
+import { putFile } from "$lib/s3.server";
+import { env } from "$env/dynamic/private"
 
 interface DefaultActionReturnType {
 	success: boolean
@@ -68,6 +70,7 @@ export const actions = {
 				event.locals.user = {
 					id: d.id,
 					username: d.username,
+					avatar_url: d.avatar_url,
 					email: d.email,
 					created_at: d.created_at
 				}
@@ -103,6 +106,24 @@ export const actions = {
 
 				if (!d) throw new Error("An unknown error occured. Please try again.")
 
+				// create an avatar for the user
+				const res = await fetch("https://api.dicebear.com/8.x/identicon/png?" + new URLSearchParams({
+					// @ts-ignore
+					seed: s.data.username,
+					backgroundColor: 'b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
+					backgroundType: 'gradientLinear',
+					backgroundRotation: '0,45,90'
+				}).toString())
+				if (res.ok && res.headers.get("content-type") === "image/png") {
+					const data = await res.arrayBuffer()
+					try {
+						await putFile(`user_avatars/${d.id}.png`, 'public-read', data)
+						const cdnUrl = `${env.S3_CDN_URL}/user_avatars/${d.id}.png`
+						await event.platform!.env.db.prepare("UPDATE users SET avatar_url = ?2 WHERE id = ?1").bind(d.id, cdnUrl).run()
+						d.avatar_url = cdnUrl
+					} catch (e) { console.error(e) }
+				}
+
 				const ssn = await getSession(event.cookies) ?? {}
 				ssn.userId = d.id
 				await saveSession(ssn, event.cookies)
@@ -110,6 +131,7 @@ export const actions = {
 					id: d.id,
 					username: d.username,
 					email: d.email,
+					avatar_url: d.avatar_url,
 					created_at: d.created_at
 				}
 
@@ -130,11 +152,6 @@ export const actions = {
 				data: s.data,
 				error: "Error: Please refresh the page and try again."
 			}
-		}
-
-		return {
-			success: true,
-			data: s.data
 		}
 	}
 } satisfies Actions
