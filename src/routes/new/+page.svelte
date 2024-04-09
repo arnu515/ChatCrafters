@@ -34,21 +34,21 @@
 	// https://developers.cloudflare.com/workers-ai/models/
 	const MODELS: { id: string; name: string; desc: string; beta: boolean; link: string }[] = [
 		{
-			id: 'mistral-7b-instruct-v0.2',
+			id: '@hf/mistralai/mistral-7b-instruct-v0.2',
 			name: 'Mistral v0.2 (7B)',
 			desc: 'A good all-round model',
 			beta: true,
 			link: 'https://developers.cloudflare.com/workers-ai/models/llama-2-7b-chat-int8/'
 		},
 		{
-			id: 'llama-2-7b-chat-int8',
+			id: '@cf/meta/llama-2-7b-chat-int8',
 			name: 'Llama2 Chat (7B) [int8]',
 			desc: 'Good for roleplaying',
 			beta: false,
 			link: 'https://developers.cloudflare.com/workers-ai/models/mistral-7b-instruct-v0.2/'
 		},
 		{
-			id: 'tinyllama-1.1b-chat-v1.0',
+			id: '@cf/tinyllama/tinyllama-1.1b-chat-v1.0',
 			name: 'TinyLlama (1.1B)',
 			desc: 'Fast model',
 			beta: true,
@@ -115,7 +115,7 @@
 								<div class="flex items-center gap-2">
 									<span class="text-black dark:text-white">{model.name}</span>
 									<span class="hidden font-mono text-sm text-gray-400 md:inline dark:text-gray-600"
-										>{model.id}</span
+										>{model.id.split("/").at(-1)}</span
 									>
 									<a href={model.link} class="ml-auto p-2" on:click|stopPropagation
 										><ExternalLinkIcon class="h-4 w-4" />
