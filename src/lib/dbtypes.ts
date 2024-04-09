@@ -3,6 +3,7 @@ export interface User {
 	email: string
 	password: string
 	username: string
+	avatar_url: string
 	created_at: string  // ISO date string
 	is_banned: number  // 0 = false, 1 = true
 }
