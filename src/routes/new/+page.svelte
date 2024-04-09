@@ -9,7 +9,8 @@
 	import { Select } from 'bits-ui'
 	import { fly } from 'svelte/transition'
 
-	let image: ArrayBuffer | undefined = undefined
+	let image: { data: ArrayBuffer; src: string } | undefined = undefined
+	let imageGenerating = false
 	export let form
 
 	// Yeah these examples were generated with AI too.
@@ -63,13 +64,60 @@
 		;(document.getElementById('prompt') as HTMLTextAreaElement).value = selectedExample.prompt
 		;(document.getElementById('attire') as HTMLTextAreaElement).value = selectedExample.attire
 	}
+
+	async function genImage() {
+		const attire = (document.getElementById('attire') as HTMLInputElement)?.value
+		if (!attire?.trim()) {
+			form = {
+				error:
+					'Please enter an attire for your Persona. Click the "Show Examples" button for some inspiration.'
+			}
+			return
+		}
+
+		imageGenerating = true
+
+		try {
+			const res = await fetch('/new/create', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ attire })
+			})
+
+			if (!res.ok) {
+				const data = await res.json()
+				throw new Error(data.error ?? '')
+			}
+
+			const data = await res.arrayBuffer()
+			image = {
+				data,
+				src: URL.createObjectURL(new Blob([data]))
+			}
+		} catch (e) {
+			if (e instanceof Error) {
+				form = {
+					error: 'An unknown error occured: ' + e.message
+				}
+			} else {
+				form = {
+					error: 'An unknown error occured'
+				}
+			}
+			console.error(e)
+		} finally {
+			imageGenerating = false
+		}
+	}
 </script>
 
 <svelte:head>
 	<title>Create a new Persona | ChatCrafters</title>
 </svelte:head>
 
-<form class="container mx-auto my-10 p-4" method="post" action="?/{!image ? 'genImage' : 'create'}">
+<form class="container mx-auto my-10 p-4" method="post" action="?/create">
 	<h1 class="text-3xl font-semibold">Create a new Persona</h1>
 
 	<div>
@@ -115,7 +163,7 @@
 								<div class="flex items-center gap-2">
 									<span class="text-black dark:text-white">{model.name}</span>
 									<span class="hidden font-mono text-sm text-gray-400 md:inline dark:text-gray-600"
-										>{model.id.split("/").at(-1)}</span
+										>{model.id.split('/').at(-1)}</span
 									>
 									<a href={model.link} class="ml-auto p-2" on:click|stopPropagation
 										><ExternalLinkIcon class="h-4 w-4" />
@@ -184,20 +232,22 @@
 				</div>
 			</label>
 		</div>
-		<aside class="col-span-2 flex justify-center p-4 md:col-span-1">
+		<aside class="col-span-2 flex flex-col items-center gap-4 p-4 md:col-span-1">
 			{#if image}
 				<button
 					title="Click to zoom"
 					aria-label="Zoom in"
 					type="button"
+					class="max-h-[256px] max-w-[256px]"
 					on:click={() => alert('ni')}
 				>
 					<img
-						src="https://picsum.photos/256/512"
+						src={image.src}
 						alt="Your persona's avatar"
-						class="h-full w-full cursor-zoom-in rounded-md border-2 border-primary shadow-lg"
+						class="h-full max-h-[256px] w-full max-w-[256px] cursor-zoom-in rounded-md border-2 border-primary shadow-lg"
 					/>
 				</button>
+				<p class="text-sm uppercase text-gray-400 dark:text-gray-600">Your persona's picture</p>
 			{:else}
 				<p class="text-center text-lg tracking-wide text-gray-400 md:pt-8 dark:text-gray-600">
 					Click "Generate Image" to generate your persona's image
@@ -209,6 +259,7 @@
 		<button
 			class="btn btn-outline btn-neutral btn-wide flex items-center text-lg sm:mr-auto sm:w-[initial]"
 			type="button"
+			disabled={imageGenerating}
 			on:click={() => {
 				if (confirm("Are you sure? This will erase all data you've typed in the form.")) {
 					showExample()
@@ -220,13 +271,19 @@
 		>
 		<button
 			class="btn btn-outline btn-primary btn-wide flex items-center gap-2 text-lg sm:w-[initial]"
+			type="button"
+			on:click={genImage}
+			disabled={imageGenerating}
 		>
+			{#if imageGenerating}
+				<span class="loading loading-spinner"></span>
+			{/if}
 			<SparklesIcon class="h-5 w-5" />
 			Generate Image</button
 		>
 		<button
 			class="btn btn-primary btn-wide flex items-center gap-2 text-lg sm:w-[initial]"
-			disabled={!image}
+			disabled={!image || imageGenerating}
 		>
 			<BadgePlusIcon class="h-5 w-5" />
 			Create Persona</button
