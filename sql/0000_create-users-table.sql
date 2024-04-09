@@ -1,7 +1,3 @@
--- Initial schema for D1
-
-DROP TABLE IF EXISTS users;
-
 CREATE TABLE IF NOT EXISTS users (
 	id TEXT PRIMARY KEY,
 	username TEXT NOT NULL,
