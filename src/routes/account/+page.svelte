@@ -35,6 +35,33 @@
 			</p>
 			<button class="btn btn-primary my-2 block">Change username</button>
 		</form>
+		<form method="post" action="?/avatar" class="my-8" enctype="multipart/form-data">
+			<h3 class="my-2 text-2xl font-medium">Change your avatar</h3>
+			<input
+				type="file"
+				name="avatar"
+				aria-label="Avatar"
+				class="file-input file-input-bordered my-1 block w-full max-w-sm placeholder:text-gray-300 dark:placeholder:text-gray-600"
+				accept="image/png"
+				placeholder="Select avatar"
+			/>
+			<p class="my-1 text-error">
+				{form?.message && form.action === 'avatar'
+					? `Could not change your avatar: ${form.message}`
+					: ''}
+			</p>
+			<p class="my-1 text-success">
+				{form?.success && form.action === 'avatar'
+					? 'Your avatar has been changed successfully. It may take some time for changes to appear, though.'
+					: ''}
+			</p>
+			<div class="my-2 flex items-center gap-2">
+				<button class="btn btn-primary block">Change avatar</button>
+				<button formaction="?/resetAvatar" class="btn btn-outline btn-neutral block">
+					Reset avatar
+				</button>
+			</div>
+		</form>
 		<div class="my-8 rounded-md border border-error px-4 py-2">
 			<h3 class="my-2 text-2xl font-medium text-error">Danger Zone</h3>
 			<div
