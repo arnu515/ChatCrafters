@@ -8,10 +8,12 @@
 	} from 'lucide-svelte'
 	import { Select } from 'bits-ui'
 	import { fly } from 'svelte/transition'
+	import { goto } from '$app/navigation'
 
 	let image: { data: ArrayBuffer; src: string } | undefined = undefined
 	let imageGenerating = false
-	export let form
+	let creatingPersona = false
+	let error: string = ''
 
 	// Yeah these examples were generated with AI too.
 	const EXAMPLES: { name: string; summary: string; prompt: string; attire: string }[] = [
@@ -68,10 +70,8 @@
 	async function genImage() {
 		const attire = (document.getElementById('attire') as HTMLInputElement)?.value
 		if (!attire?.trim()) {
-			form = {
-				error:
-					'Please enter an attire for your Persona. Click the "Show Examples" button for some inspiration.'
-			}
+			error =
+				'Please enter an attire for your Persona. Click the "Show Examples" button for some inspiration.'
 			return
 		}
 
@@ -98,17 +98,48 @@
 			}
 		} catch (e) {
 			if (e instanceof Error) {
-				form = {
-					error: 'An unknown error occured: ' + e.message
-				}
+				error = 'An unknown error occured: ' + e.message
 			} else {
-				form = {
-					error: 'An unknown error occured'
-				}
+				error = 'An unknown error occured'
 			}
 			console.error(e)
 		} finally {
 			imageGenerating = false
+		}
+	}
+
+	async function createPersona(e: SubmitEvent & { currentTarget: HTMLFormElement }) {
+		if (!image) {
+			alert('Please generate an image first')
+			return
+		}
+
+		const fd = new FormData(e.currentTarget)
+
+		fd.set('image', new Blob([image.data], { type: 'image/png' }))
+
+		creatingPersona = true
+		try {
+			const res = await fetch('/new', {
+				method: 'POST',
+				body: fd
+			})
+			const data = await res.json()
+
+			if (!res.ok) {
+				throw new Error(data.error ?? '')
+			}
+
+			goto('/persona/' + data.id)
+		} catch (e) {
+			if (e instanceof Error) {
+				error = 'An unknown error occured: ' + e.message
+			} else {
+				error = 'An unknown error occured'
+			}
+			console.error(e)
+		} finally {
+			creatingPersona = false
 		}
 	}
 </script>
@@ -117,7 +148,7 @@
 	<title>Create a new Persona | ChatCrafters</title>
 </svelte:head>
 
-<form class="container mx-auto my-10 p-4" method="post" action="?/create">
+<form class="container mx-auto my-10 p-4" on:submit|preventDefault={createPersona}>
 	<h1 class="text-3xl font-semibold">Create a new Persona</h1>
 
 	<div>
@@ -200,7 +231,7 @@
 				<div class="label"><span class="label-text text-lg font-medium">System Prompt</span></div>
 				<textarea
 					rows={5}
-					name="Prompt"
+					name="prompt"
 					id="prompt"
 					required
 					minlength={50}
@@ -259,7 +290,7 @@
 		<button
 			class="btn btn-outline btn-neutral btn-wide flex items-center text-lg sm:mr-auto sm:w-[initial]"
 			type="button"
-			disabled={imageGenerating}
+			disabled={imageGenerating || creatingPersona}
 			on:click={() => {
 				if (confirm("Are you sure? This will erase all data you've typed in the form.")) {
 					showExample()
@@ -273,7 +304,7 @@
 			class="btn btn-outline btn-primary btn-wide flex items-center gap-2 text-lg sm:w-[initial]"
 			type="button"
 			on:click={genImage}
-			disabled={imageGenerating}
+			disabled={imageGenerating || creatingPersona}
 		>
 			{#if imageGenerating}
 				<span class="loading loading-spinner"></span>
@@ -283,19 +314,22 @@
 		>
 		<button
 			class="btn btn-primary btn-wide flex items-center gap-2 text-lg sm:w-[initial]"
-			disabled={!image || imageGenerating}
+			disabled={!image || imageGenerating || creatingPersona}
 		>
+			{#if creatingPersona}
+				<span class="loading loading-spinner"></span>
+			{/if}
 			<BadgePlusIcon class="h-5 w-5" />
 			Create Persona</button
 		>
 	</div>
 	<p
 		class="my-2 text-center text-error sm:text-right"
-		class:text-sm={!form?.error}
-		class:text-lg={!!form?.error}
+		class:text-sm={!error}
+		class:text-lg={!!error}
 	>
-		{form?.error
-			? `Error: ${form.error}`
+		{error
+			? `Error: ${error}`
 			: !image
 				? 'Generate an image first to be able to create your Persona'
 				: ''}
