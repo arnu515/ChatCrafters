@@ -4,7 +4,8 @@
 		RotateCcwIcon,
 		SparklesIcon,
 		ChevronsUpDownIcon,
-		ExternalLinkIcon
+		ExternalLinkIcon,
+		ArrowLeftIcon
 	} from 'lucide-svelte'
 	import { Select } from 'bits-ui'
 	import { fly } from 'svelte/transition'
@@ -171,7 +172,14 @@
 </svelte:head>
 
 <form class="container mx-auto mb-4 mt-10 p-4" on:submit|preventDefault={editPersona}>
-	<h1 class="text-3xl font-semibold">Edit Persona</h1>
+	<h1 class="flex items-center gap-4 text-3xl font-semibold">
+		<a
+			href="/persona/{data.persona.id}"
+			title="Back"
+			aria-label="Go back"
+			class="btn btn-square btn-ghost pb-2"><ArrowLeftIcon class="h-7 w-7 stroke-2" /></a
+		> Edit Persona
+	</h1>
 
 	<div>
 		<div>
