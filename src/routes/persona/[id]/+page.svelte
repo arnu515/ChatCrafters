@@ -1,12 +1,14 @@
 <script lang="ts">
-	import { Separator, Dialog } from 'bits-ui'
+	import { Separator } from 'bits-ui'
 	import { env } from '$env/dynamic/public'
-	import { SendIcon, TrashIcon, XIcon } from 'lucide-svelte'
+	import { SendIcon, TrashIcon } from 'lucide-svelte'
 	import ShareDialog from './shareDialog.svelte'
+	import ReportDialog from './reportDialog.svelte'
+	import { onMount, onDestroy } from 'svelte'
 	import dayjs from 'dayjs'
 	import rt from 'dayjs/plugin/relativeTime.js'
-	import { fade, fly } from 'svelte/transition'
-	import ReportDialog from './reportDialog.svelte'
+	import { z } from 'zod'
+
 	dayjs.extend(rt)
 
 	interface Message {
@@ -18,6 +20,39 @@
 	}
 
 	let messages: Message[] = []
+	let loadingMessages = false
+
+	onMount(() => {
+		try {
+			const messagesLS = localStorage.getItem(`messages:${data.persona.id}`)
+			if (!messagesLS) return
+			const messagesLSJson = JSON.parse(messagesLS)
+			loadingMessages = true
+			z.object({
+				text: z.string(),
+				by: z.string().refine(v => ['user', 'persona'].includes(v)),
+				at: z
+					.string()
+					.datetime({ precision: 3 })
+					.transform(v => new Date(v)),
+				showHeader: z.boolean(),
+				showFooter: z.boolean()
+			})
+				.array()
+				.parseAsync(messagesLSJson)
+				.then((m: any) => {
+					messages = m
+					// loadingMessages = false
+				})
+		} catch {
+			loadingMessages = true
+			localStorage.removeItem(`messages:${data.persona.id}`)
+		}
+	})
+	onDestroy(() => {
+		if (messages.length > 0)
+			localStorage.setItem(`messages:${data.persona.id}`, JSON.stringify(messages))
+	})
 
 	export let data
 	export let form
@@ -129,7 +164,12 @@
 				<Separator.Root class="h-1 shrink-0 bg-base-100" />
 			</div>
 			<div class="flex-grow overflow-y-auto p-4" id="messages-box">
-				{#if messages.length === 0}
+				{#if loadingMessages}
+					<p class="my-8 flex items-center justify-center gap-2 text-center text-lg opacity-50">
+						<span class="loading loading-spinner"></span>
+						Loading messages
+					</p>
+				{:else if messages.length === 0}
 					<p class="my-8 text-center text-lg opacity-50">Send your first message!</p>
 				{:else}
 					{#each messages as msg}
