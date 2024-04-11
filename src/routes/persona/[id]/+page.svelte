@@ -31,7 +31,7 @@
 			<figure class="grid place-items-center p-4">
 				<img
 					src={`${env.PUBLIC_S3_CDN_URL}/persona_avatars/${data.persona.id}.png`}
-					class="h-full max-h-[512px] w-full max-w-[512px] rounded-lg shadow md:max-h-[256px] md:max-w-[256px]"
+					class="h-full max-h-[512px] w-full max-w-[512px] rounded-lg border-2 border-primary shadow md:max-h-[256px] md:max-w-[256px]"
 					alt="Persona's avatar"
 				/>
 			</figure>
