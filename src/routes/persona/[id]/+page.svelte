@@ -74,13 +74,15 @@
 		</div>
 		<div class="flex flex-col gap-2 rounded-box bg-base-300 px-8 py-4 shadow-md">
 			<div class="flex items-center justify-between">
-				<p class="font-semibold">Report Persona?</p>
-				<ReportDialog
-					personaAvatar={`${env.PUBLIC_S3_CDN_URL}/persona_avatars/${data.persona.id}.png`}
-					personaName={data.persona.name}
-					success={form?.action === 'report' && form?.success}
-					message={form?.action === 'report' ? form?.message ?? '' : ''}
-				/>
+				{#if data.user}
+					<p class="font-semibold">Report Persona?</p>
+					<ReportDialog
+						personaAvatar={`${env.PUBLIC_S3_CDN_URL}/persona_avatars/${data.persona.id}.png`}
+						personaName={data.persona.name}
+						success={form?.action === 'report' && form?.success}
+						message={form?.action === 'report' ? form?.message ?? '' : ''}
+					/>
+				{/if}
 			</div>
 			{#if data.persona.userId !== data.user?.id}
 				<div class="flex items-center justify-between">
