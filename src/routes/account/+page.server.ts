@@ -2,7 +2,7 @@ import { fail, redirect } from "@sveltejs/kit"
 import type { Actions } from "./$types"
 import { z } from "zod"
 import { putFile } from "$lib/s3.server"
-import { env } from "$env/dynamic/private"
+import { env } from "$env/dynamic/public"
 
 export const actions = {
 	username: async (event) => {
@@ -50,7 +50,7 @@ export const actions = {
 		try {
 			const data = await avatar.arrayBuffer()
 			await putFile(`user_avatars/${user.id}.png`, 'public-read', data)
-			const cdnUrl = `${env.S3_CDN_URL}/user_avatars/${user.id}.png`
+			const cdnUrl = `${env.PUBLIC_S3_CDN_URL}/user_avatars/${user.id}.png`
 			await event.platform!.env.db.prepare("UPDATE users SET avatar_url = ?2 WHERE id = ?1").bind(user.id, cdnUrl).run()
 			event.locals.user = {
 				...user,
@@ -79,7 +79,7 @@ export const actions = {
 			if (res.ok && res.headers.get("content-type") === "image/png") {
 				const data = await res.arrayBuffer()
 				await putFile(`user_avatars/${user.id}.png`, 'public-read', data)
-				const cdnUrl = `${env.S3_CDN_URL}/user_avatars/${user.id}.png`
+				const cdnUrl = `${env.PUBLIC_S3_CDN_URL}/user_avatars/${user.id}.png`
 				await event.platform!.env.db.prepare("UPDATE users SET avatar_url = ?2 WHERE id = ?1").bind(user.id, cdnUrl).run()
 				event.locals.user = {
 					...user,

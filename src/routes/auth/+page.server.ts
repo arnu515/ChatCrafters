@@ -5,7 +5,7 @@ import { redirect, type Actions } from "@sveltejs/kit";
 import { z } from "zod"
 import bcrypt from "bcryptjs"
 import { putFile } from "$lib/s3.server";
-import { env } from "$env/dynamic/private"
+import { env } from "$env/dynamic/public"
 
 interface DefaultActionReturnType {
 	success: boolean
@@ -118,7 +118,7 @@ export const actions = {
 					const data = await res.arrayBuffer()
 					try {
 						await putFile(`user_avatars/${d.id}.png`, 'public-read', data)
-						const cdnUrl = `${env.S3_CDN_URL}/user_avatars/${d.id}.png`
+						const cdnUrl = `${env.PUBLIC_S3_CDN_URL}/user_avatars/${d.id}.png`
 						await event.platform!.env.db.prepare("UPDATE users SET avatar_url = ?2 WHERE id = ?1").bind(d.id, cdnUrl).run()
 						d.avatar_url = cdnUrl
 					} catch (e) { console.error(e) }
