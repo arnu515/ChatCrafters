@@ -78,7 +78,7 @@
 		imageGenerating = true
 
 		try {
-			const res = await fetch('/new/generateImage', {
+			const res = await fetch('/api/generateImage', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
