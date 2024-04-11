@@ -76,7 +76,9 @@ export const POST: RequestHandler = async event => {
 				parseRes.data.name,
 				parseRes.data.summary,
 				parseRes.data.model,
-				parseRes.data.prompt,
+				parseRes.data.prompt
+					.replaceAll('%name%', parseRes.data.name)
+					.replaceAll('%summary%', parseRes.data.summary),
 				parseRes.data.attire,
 				user.id
 			)
