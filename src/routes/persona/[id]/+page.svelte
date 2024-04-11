@@ -23,6 +23,27 @@
 	class="container mx-auto my-4 grid grid-cols-1 gap-4 overflow-hidden p-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
 >
 	<div class="flex flex-col gap-4">
+		<div class="card h-min bg-base-300 shadow-md sm:flex-row md:max-w-sm md:flex-col">
+			<figure class="grid place-items-center p-4">
+				<img
+					src={`${env.PUBLIC_S3_CDN_URL}/persona_avatars/${data.persona.id}.png`}
+					class="h-full max-h-[512px] w-full max-w-[512px] rounded-lg shadow md:max-h-[256px] md:max-w-[256px]"
+					alt="Persona's avatar"
+				/>
+			</figure>
+			<div class="card-body gap-2 md:items-center">
+				<h3 class="font-heading card-title font-medium">{data.persona.name}</h3>
+				<p class="sm:text-left sm:text-lg md:text-center">{data.persona.summary}</p>
+				<div
+					class="mb-4 mt-auto flex flex-col flex-wrap justify-center gap-x-4 gap-y-2 md:flex-row md:items-center md:justify-center"
+				>
+					{#if data.persona.userId === data.user?.id}
+						<button class="btn btn-neutral btn-sm">Edit Persona</button>
+					{/if}
+					<button class="btn btn-primary btn-sm">Share Persona</button>
+				</div>
+			</div>
+		</div>
 		<div class="card h-min bg-base-300 shadow-md">
 			<div class="card-body justify-center gap-2">
 				<h3 class="font-heading card-title flex items-center justify-center gap-2 font-medium">
