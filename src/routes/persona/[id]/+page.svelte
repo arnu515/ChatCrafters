@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { Separator } from 'bits-ui'
+	import { Separator, Dialog } from 'bits-ui'
 	import { env } from '$env/dynamic/public'
-	import { SendIcon, TrashIcon } from 'lucide-svelte'
+	import { SendIcon, TrashIcon, XIcon } from 'lucide-svelte'
 	import dayjs from 'dayjs'
 	import rt from 'dayjs/plugin/relativeTime.js'
+	import { fade, fly } from 'svelte/transition'
 	dayjs.extend(rt)
 
 	interface Message {
@@ -17,6 +18,7 @@
 	let messages: Message[] = []
 
 	export let data
+	export let form
 </script>
 
 <main
@@ -67,7 +69,72 @@
 		<div class="flex flex-col gap-2 rounded-box bg-base-300 px-8 py-4 shadow-md">
 			<div class="flex items-center justify-between">
 				<p class="font-semibold">Report Persona?</p>
-				<button class="btn btn-error btn-sm">Report</button>
+				<Dialog.Root>
+					<Dialog.Trigger class="btn btn-error btn-sm">Report</Dialog.Trigger>
+					<Dialog.Portal class="p-2">
+						<Dialog.Overlay
+							transition={fade}
+							transitionConfig={{ duration: 200 }}
+							class="fixed inset-0 z-10 bg-black/70"
+						/>
+
+						<Dialog.Content
+							transition={fly}
+							class="fixed left-[50%] top-[50%] z-10 w-full max-w-sm translate-x-[-50%] translate-y-[-50%] rounded-lg border-2 border-red-500/80 bg-base-300 p-4 shadow-md outline-none"
+						>
+							<Dialog.Title
+								class="flex items-center justify-center text-center text-lg font-semibold text-black dark:text-white"
+								>Report this persona
+								<Dialog.Close class="ml-auto rounded-full p-2 active:scale-95">
+									<XIcon class="h-5 w-5" />
+								</Dialog.Close>
+							</Dialog.Title>
+							<form action="?/report" method="post">
+								<p class="my-4 text-lg font-medium">
+									Report this persona for violating basic guidelines and rules. Your chats will NOT
+									be sent along with this report.
+								</p>
+								<p class="my-4 flex items-center font-mono">
+									You are reporting <span class="font-heading ml-3 inline-flex items-center gap-2">
+										<img
+											src={`${env.PUBLIC_S3_CDN_URL}/persona_avatars/${data.persona.id}.png`}
+											class="h-6 w-6 rounded-full"
+											alt="Persona's avatar"
+										/>
+										{data.persona.name}
+									</span>.
+								</p>
+								<label for="report">
+									<div class="label">
+										<span class="label-text">Enter report</span>
+									</div>
+									<textarea
+										name="report"
+										id="report"
+										required
+										maxlength={128}
+										rows={5}
+										class="textarea textarea-bordered w-full font-mono text-base placeholder:text-gray-300 dark:placeholder:text-gray-600"
+										placeholder="Please keep the report concise and meaningful."
+									/>
+								</label>
+								<p
+									class="py-2 text-sm"
+									class:text-error={form?.action === 'report' && !form?.success}
+									class:text-success={form?.action === 'report' && form?.success}
+								>
+									{form?.action === 'report' ? form?.message ?? '' : ''}
+								</p>
+								<div class="mt-4 flex items-center justify-between">
+									<Dialog.Close type="button" class="btn btn-outline btn-neutral text-lg"
+										>Cancel</Dialog.Close
+									>
+									<button class="btn btn-error text-lg">Create a report</button>
+								</div>
+							</form>
+						</Dialog.Content>
+					</Dialog.Portal>
+				</Dialog.Root>
 			</div>
 			{#if data.persona.userId !== data.user?.id}
 				<div class="flex items-center justify-between">
@@ -75,6 +142,13 @@
 					<a href="/new" class="btn btn-primary btn-sm">Create</a>
 				</div>
 			{/if}
+			<p
+				class="text-center text-sm"
+				class:text-error={form?.action === 'report' && !form?.success}
+				class:text-success={form?.action === 'report' && form?.success}
+			>
+				{form?.action === 'report' ? form?.message ?? '' : ''}
+			</p>
 		</div>
 	</div>
 	<div
