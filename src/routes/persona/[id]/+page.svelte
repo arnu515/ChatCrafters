@@ -77,7 +77,9 @@
 					class="mb-4 mt-auto flex flex-col flex-wrap justify-center gap-x-4 gap-y-2 md:flex-row md:items-center md:justify-center"
 				>
 					{#if data.persona.userId === data.user?.id}
-						<button class="btn btn-neutral btn-sm">Edit Persona</button>
+						<a href="/persona/{data.persona.id}/edit" class="btn btn-neutral btn-sm">
+							Edit Persona
+						</a>
 					{/if}
 					<ShareDialog
 						personaAvatar={`${env.PUBLIC_S3_CDN_URL}/persona_avatars/${data.persona.id}.png`}
