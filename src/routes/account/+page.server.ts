@@ -14,7 +14,10 @@ export const actions = {
 		const usernameSchema = z.string().max(64).min(4).trim()
 		const usernameResult = usernameSchema.safeParse((await event.request.formData()).get("username"))
 		if (!usernameResult.success) {
-			return fail(400, { message: usernameResult.error.message, action: "username", success: false })
+			return fail(400, {
+				message: usernameResult.error.issues.map(i => `Error: ${i.message}`).join('\n')
+				, action: "username", success: false
+			})
 		}
 		if (usernameResult.data === user.username) {
 			return fail(400, { message: "Please enter a new username", action: "username", success: false })

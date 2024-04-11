@@ -6,7 +6,7 @@ import type { RequestHandler } from "./$types"
 export const POST: RequestHandler = async (event) => {
 	const data = z.string().min(30).max(512).trim().safeParse((await event.request.json()).attire)
 	if (!data.success) {
-		return json({ error: data.error.message }, { status: 400 })
+		return json({ error: data.error.issues.map(i => `Error: ${i.message}`).join('\n') }, { status: 400 })
 	}
 
 	const prompt = data.data + ' front-view. top-down photo. realistic.'
