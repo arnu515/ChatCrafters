@@ -77,9 +77,7 @@
 					>Delete your account? This will remove all your personas.</span
 				>
 				<Dialog.Root>
-					<Dialog.Trigger class="btn btn-error btn-wide" type="submit"
-						>Delete account</Dialog.Trigger
-					>
+					<Dialog.Trigger class="btn btn-error btn-wide">Delete account</Dialog.Trigger>
 					<Dialog.Portal>
 						<Dialog.Overlay
 							transition={fade}
