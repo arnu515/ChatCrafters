@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { Separator } from 'bits-ui'
 	import { env } from '$env/dynamic/public'
-	import { SendIcon, TrashIcon } from 'lucide-svelte'
+	import { SendIcon, TrashIcon, BanIcon } from 'lucide-svelte'
 	import ShareDialog from './shareDialog.svelte'
 	import ReportDialog from './reportDialog.svelte'
-	import { onMount, onDestroy } from 'svelte'
+	import { onMount, onDestroy, tick } from 'svelte'
 	import dayjs from 'dayjs'
 	import rt from 'dayjs/plugin/relativeTime.js'
 	import { z } from 'zod'
+	import { parseSSE } from '$lib/sse'
 
 	dayjs.extend(rt)
 
@@ -21,6 +22,8 @@
 
 	let messages: Message[] = []
 	let loadingMessages = false
+	let messageBeingGenerated: string | undefined
+	let sendingMessage = false
 
 	onMount(() => {
 		try {
@@ -43,6 +46,10 @@
 				.then((m: any) => {
 					messages = m
 					loadingMessages = false
+					tick().then(() => {
+						const el = document.getElementById('messages-box')!
+						el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+					})
 				})
 		} catch {
 			loadingMessages = true
@@ -53,6 +60,98 @@
 		if (messages.length > 0)
 			localStorage.setItem(`messages:${data.persona.id}`, JSON.stringify(messages))
 	})
+
+	function onGenerate(message: string) {
+		try {
+			const { response = '' } = JSON.parse(message)
+			messageBeingGenerated ??= ''
+			messageBeingGenerated += response ?? ''
+			tick().then(() => {
+				const el = document.getElementById('messages-box')!
+				el.scrollTo({ top: el.scrollHeight })
+			})
+		} catch {}
+	}
+
+	function doneGenerating() {
+		if (!messageBeingGenerated) return
+		// mistral always adds a </s> to the end of its messages
+		addMessage(
+			'persona',
+			data.persona.model.includes('mistral') && messageBeingGenerated.endsWith('</s>')
+				? messageBeingGenerated.slice(0, -4)
+				: messageBeingGenerated
+		)
+		messageBeingGenerated = undefined
+	}
+
+	function addMessage(by: Message['by'], text: Message['text']) {
+		const lastMsg = messages.at(-1)
+		let showHeader = lastMsg?.by !== by
+		const message = {
+			at: new Date(),
+			by,
+			showHeader,
+			text: text.trim(),
+			showFooter: true
+		} satisfies Message
+
+		messages = messages
+			.slice(0, -1)
+			.concat(
+				messages.length === 0 && !showHeader
+					? [message]
+					: [{ ...lastMsg!, showFooter: false }, message]
+			)
+		tick().then(() => {
+			const el = document.getElementById('messages-box')!
+			el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+		})
+	}
+
+	async function sendMessage(e: SubmitEvent & { currentTarget: HTMLFormElement }) {
+		if (typeof messageBeingGenerated !== 'undefined' || sendingMessage) return
+		const fd = new FormData(e.currentTarget)
+		const message = fd.get('message')
+		if (typeof message !== 'string' || !message.trim()) return
+
+		try {
+			sendingMessage = true
+			const res = await fetch(`/persona/${data.persona.id}/message`, {
+				method: 'POST',
+				body: JSON.stringify({
+					messages: messages
+						.map(i => ({
+							role: i.by === 'persona' ? 'assistant' : 'user',
+							content: i.text
+						}))
+						.concat([
+							{
+								role: 'user',
+								content: message.trim()
+							}
+						])
+				}),
+				headers: { 'Content-Type': 'application/json' }
+			})
+
+			if (res.headers.get('content-type') === 'text/event-stream') {
+				parseSSE(res, onGenerate, doneGenerating)
+				;(document.getElementById('message') as HTMLInputElement).value = ''
+				addMessage('user', message.trim())
+			} else {
+				const data = await res.json()
+				throw new Error(data.error ?? data.message ?? 'An unknown error occured')
+			}
+		} catch (e) {
+			alert(
+				`Could not send message: ${e instanceof Error ? e.message : 'An unknown error occured'}`
+			)
+			console.error(e)
+		} finally {
+			sendingMessage = false
+		}
+	}
 
 	export let data
 	export let form
@@ -162,7 +261,10 @@
 						class:cursor-not-allowed={!messages.length}
 						disabled={!messages.length}
 						on:click={() => {
-							if (window.confirm('Are you sure you want to delete all messages?')) messages = []
+							if (window.confirm('Are you sure you want to delete all messages?')) {
+								messages = []
+								localStorage.removeItem(`messages:${data.persona.id}`)
+							}
 						}}
 					>
 						<TrashIcon class="h-5 w-5" />
@@ -176,7 +278,7 @@
 						<span class="loading loading-spinner"></span>
 						Loading messages
 					</p>
-				{:else if messages.length === 0}
+				{:else if messages.length === 0 && typeof messageBeingGenerated === 'undefined'}
 					<p class="my-8 text-center text-lg opacity-50">Send your first message!</p>
 				{:else}
 					{#each messages as msg}
@@ -186,7 +288,7 @@
 							class:chat-end={msg.by === 'user'}
 						>
 							<div class="avatar chat-image">
-								<div class="h-8 w-8">
+								<div class="h-8 w-8 rounded-full">
 									{#if msg.showFooter}
 										<img
 											src={msg.by === 'persona'
@@ -212,9 +314,41 @@
 							{/if}
 						</div>
 					{/each}
+					{#if typeof messageBeingGenerated !== 'undefined'}
+						<div class="chat chat-start my-4">
+							<div class="avatar chat-image">
+								<div class="h-8 w-8">
+									<img
+										src={`${env.PUBLIC_S3_CDN_URL}/persona_avatars/${data.persona.id}.png`}
+										alt="Persona's Avatar"
+									/>
+								</div>
+							</div>
+							<div class="font-heading chat-header mb-1 mt-4">
+								{data.persona.name}
+							</div>
+							<div class="chat-bubble">
+								{#if !messageBeingGenerated.trim()}
+									<div class="flex justify-center py-2">
+										<span class="loading loading-dots"></span>
+									</div>
+								{:else}
+									{messageBeingGenerated}
+									<span class="relative ml-1 inline-flex h-3 w-3">
+										<span class="min-h-3 min-w-3 rounded-full bg-gray-800/80 dark:bg-white/80"
+										></span>
+										<span
+											class="absolute h-full w-full animate-ping rounded-full bg-gray-800/50 dark:bg-white/50"
+										></span>
+									</span>
+								{/if}
+							</div>
+							<div class="chat-footer mb-4 mt-1 text-xs opacity-50">generating...</div>
+						</div>
+					{/if}
 				{/if}
 			</div>
-			<form action="?/message" class="m-4 mt-0 flex items-center gap-2" method="POST">
+			<form on:submit|preventDefault={sendMessage} class="m-4 mt-0 flex items-center gap-2">
 				<input
 					type="text"
 					name="message"
@@ -226,8 +360,16 @@
 				<button
 					class="btn-circle btn-neutral grid place-items-center"
 					aria-label="Send"
-					title="Send message"><SendIcon class="h-6 w-6" /></button
+					title="Send message"
 				>
+					{#if sendingMessage}
+						<span class="loading loading-spinner"></span>
+					{:else if typeof messageBeingGenerated !== 'undefined'}
+						<span class="loading loading-ring"></span>
+					{:else}
+						<SendIcon class="h-6 w-6" />
+					{/if}
+				</button>
 			</form>
 		{:else}
 			<div class="flex flex-grow flex-col items-center gap-4 pt-10">
