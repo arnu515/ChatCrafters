@@ -62,10 +62,10 @@ export const actions = {
 		}
 
 		const nextParam = event.url.searchParams.get('next')
-		let nextUrl = event.url
+		let nextUrl = new URL('/', event.url.origin)
 		if (typeof nextParam === 'string' && nextParam.trim()) {
-			nextUrl = new URL(nextParam, event.url.origin)
-			if (nextUrl.origin !== event.url.origin) nextUrl = event.url
+			const possibleNextUrl = new URL(nextParam, event.url.origin)
+			if (possibleNextUrl.origin !== event.url.origin) nextUrl = possibleNextUrl
 		}
 
 		if (mode === 'login') {
@@ -90,6 +90,7 @@ export const actions = {
 					created_at: d.created_at
 				}
 
+				console.log(nextUrl, nextUrl.pathname)
 				redirect(302, nextUrl.pathname)
 			} catch (e) {
 				if (e instanceof Error) {
@@ -129,13 +130,13 @@ export const actions = {
 				// create an avatar for the user
 				const res = await fetch(
 					'https://api.dicebear.com/8.x/identicon/png?' +
-						new URLSearchParams({
-							// @ts-ignore
-							seed: s.data.username,
-							backgroundColor: 'b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
-							backgroundType: 'gradientLinear',
-							backgroundRotation: '0,45,90'
-						}).toString()
+					new URLSearchParams({
+						// @ts-ignore
+						seed: s.data.username,
+						backgroundColor: 'b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
+						backgroundType: 'gradientLinear',
+						backgroundRotation: '0,45,90'
+					}).toString()
 				)
 				if (res.ok && res.headers.get('content-type') === 'image/png') {
 					const data = await res.arrayBuffer()
