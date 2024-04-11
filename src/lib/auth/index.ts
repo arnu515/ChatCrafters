@@ -1,4 +1,4 @@
-import { redirect } from "@sveltejs/kit"
+import { redirect } from '@sveltejs/kit'
 
 export function userGuard(locals: App.Locals, url?: URL, mode: 'login' | 'signup' = 'login') {
 	const { user } = locals
@@ -8,4 +8,3 @@ export function userGuard(locals: App.Locals, url?: URL, mode: 'login' | 'signup
 
 	return user
 }
-

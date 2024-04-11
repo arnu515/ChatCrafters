@@ -25,6 +25,7 @@ Make sure you're authenticated to wrangler with `pnpm exec wrangler login`
 2. Create a D1 database using `pnpm exec wrangler d1 create NAME_OF_DB`. Copy whatever TOML output it gives you into `wrangler.toml`, but make sure that the binding is `db`.
 
 Example:
+
 ```toml
 [[d1_databases]]
 binding = "db"  # DO NOT CHANGE THIS
@@ -33,6 +34,7 @@ database_id = "SOME-RANDOM-UUID"
 ```
 
 Create the schema using
+
 ```bash
 # TODO: Use a for loop to run all sql/ files
 

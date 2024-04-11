@@ -106,10 +106,7 @@
 						>
 							<div class="avatar">
 								<div class="w-5 rounded-lg border-2 border-black dark:border-white">
-									<img
-										src={user.avatar_url}
-										alt="Your avatar"
-									/>
+									<img src={user.avatar_url} alt="Your avatar" />
 								</div>
 							</div>
 							Your account

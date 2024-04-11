@@ -5,15 +5,13 @@ const config = {
 	theme: {
 		extend: {
 			fontFamily: {
-				sans: ["Overpass Variable", "sans-serif"],
-				mono: ["JetBrains Mono Variable", "monospace"]
+				sans: ['Overpass Variable', 'sans-serif'],
+				mono: ['JetBrains Mono Variable', 'monospace']
 			}
 		}
 	},
 
-	plugins: [
-		require("daisyui")
-	]
+	plugins: [require('daisyui')]
 }
 
 module.exports = config
