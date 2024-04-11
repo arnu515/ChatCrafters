@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { Separator, Dialog } from 'bits-ui'
 	import { env } from '$env/dynamic/public'
-	import { SendIcon, TrashIcon, XIcon, CopyIcon } from 'lucide-svelte'
+	import { SendIcon, TrashIcon, XIcon } from 'lucide-svelte'
+	import ShareDialog from './shareDialog.svelte'
 	import dayjs from 'dayjs'
 	import rt from 'dayjs/plugin/relativeTime.js'
 	import { fade, fly } from 'svelte/transition'
+	import ReportDialog from './reportDialog.svelte'
 	dayjs.extend(rt)
 
 	interface Message {
@@ -19,26 +21,6 @@
 
 	export let data
 	export let form
-
-	function copyShareLink() {
-		const input = document.getElementById('share-link') as HTMLInputElement
-		if (!input) return
-
-		if ('clipboard' in navigator && 'writeText' in navigator.clipboard) {
-			navigator.clipboard.writeText(input.value)
-		} else {
-			input.select()
-			document.execCommand('copy')
-		}
-	}
-	function openShareSheet() {
-		const input = document.getElementById('share-link') as HTMLInputElement
-		if (!input) return
-
-		if ('share' in navigator) {
-			navigator.share({ url: input.value })
-		}
-	}
 </script>
 
 <main
@@ -62,63 +44,11 @@
 					{#if data.persona.userId === data.user?.id}
 						<button class="btn btn-neutral btn-sm">Edit Persona</button>
 					{/if}
-					<Dialog.Root>
-						<Dialog.Trigger class="btn btn-primary btn-sm">Share Persona</Dialog.Trigger>
-						<Dialog.Portal>
-							<Dialog.Overlay
-								transition={fade}
-								transitionConfig={{ duration: 200 }}
-								class="fixed inset-0 z-10 bg-black/70"
-							/>
-
-							<Dialog.Content
-								transition={fly}
-								class="fixed left-[50%] top-[50%] z-10 w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-lg border-2 border-primary/80 bg-base-300 p-4 shadow-md outline-none"
-							>
-								<Dialog.Title
-									class="flex items-center justify-center text-center text-lg font-semibold text-black dark:text-white"
-									>Share this Persona
-									<Dialog.Close class="ml-auto rounded-full p-2 active:scale-95">
-										<XIcon class="h-5 w-5" />
-									</Dialog.Close>
-								</Dialog.Title>
-								<p class="my-4 flex items-center font-mono">
-									Share <span class="font-heading mx-3 inline-flex items-center gap-2">
-										<img
-											src={`${env.PUBLIC_S3_CDN_URL}/persona_avatars/${data.persona.id}.png`}
-											class="h-6 w-6 rounded-full"
-											alt="Persona's avatar"
-										/>
-										{data.persona.name}
-									</span> with everyone!
-								</p>
-								<label for="share-link">
-									<div class="label">
-										<span class="label-text">Enter report</span>
-									</div>
-									<div class="flex items-center gap-2">
-										<input
-											id="share-link"
-											readonly
-											class="input input-bordered w-full font-mono text-base placeholder:text-gray-300 dark:placeholder:text-gray-600"
-											value={new URL(window.location.href).origin + '/persona/' + data.persona.id}
-										/>
-										<button class="btn btn-square btn-neutral" on:click={copyShareLink}
-											><CopyIcon class="h-5 w-5" /></button
-										>
-									</div>
-								</label>
-								<div class="mt-4 flex items-center gap-2">
-									<Dialog.Close type="button" class="btn btn-outline btn-neutral mr-auto text-lg"
-										>Close</Dialog.Close
-									>
-									<button class="btn btn-primary text-lg" on:click={openShareSheet}
-										>Open share sheet</button
-									>
-								</div>
-							</Dialog.Content>
-						</Dialog.Portal>
-					</Dialog.Root>
+					<ShareDialog
+						personaAvatar={`${env.PUBLIC_S3_CDN_URL}/persona_avatars/${data.persona.id}.png`}
+						personaName={data.persona.name}
+						personaId={data.persona.id}
+					/>
 				</div>
 			</div>
 		</div>
@@ -145,72 +75,12 @@
 		<div class="flex flex-col gap-2 rounded-box bg-base-300 px-8 py-4 shadow-md">
 			<div class="flex items-center justify-between">
 				<p class="font-semibold">Report Persona?</p>
-				<Dialog.Root>
-					<Dialog.Trigger class="btn btn-error btn-sm">Report</Dialog.Trigger>
-					<Dialog.Portal class="p-2">
-						<Dialog.Overlay
-							transition={fade}
-							transitionConfig={{ duration: 200 }}
-							class="fixed inset-0 z-10 bg-black/70"
-						/>
-
-						<Dialog.Content
-							transition={fly}
-							class="fixed left-[50%] top-[50%] z-10 w-full max-w-sm translate-x-[-50%] translate-y-[-50%] rounded-lg border-2 border-red-500/80 bg-base-300 p-4 shadow-md outline-none"
-						>
-							<Dialog.Title
-								class="flex items-center justify-center text-center text-lg font-semibold text-black dark:text-white"
-								>Report this persona
-								<Dialog.Close class="ml-auto rounded-full p-2 active:scale-95">
-									<XIcon class="h-5 w-5" />
-								</Dialog.Close>
-							</Dialog.Title>
-							<form action="?/report" method="post">
-								<p class="my-4 text-lg font-medium">
-									Report this persona for violating basic guidelines and rules. Your chats will NOT
-									be sent along with this report.
-								</p>
-								<p class="my-4 flex items-center font-mono">
-									You are reporting <span class="font-heading ml-3 inline-flex items-center gap-2">
-										<img
-											src={`${env.PUBLIC_S3_CDN_URL}/persona_avatars/${data.persona.id}.png`}
-											class="h-6 w-6 rounded-full"
-											alt="Persona's avatar"
-										/>
-										{data.persona.name}
-									</span>.
-								</p>
-								<label for="report">
-									<div class="label">
-										<span class="label-text">Enter report</span>
-									</div>
-									<textarea
-										name="report"
-										id="report"
-										required
-										maxlength={128}
-										rows={5}
-										class="textarea textarea-bordered w-full font-mono text-base placeholder:text-gray-300 dark:placeholder:text-gray-600"
-										placeholder="Please keep the report concise and meaningful."
-									/>
-								</label>
-								<p
-									class="py-2 text-sm"
-									class:text-error={form?.action === 'report' && !form?.success}
-									class:text-success={form?.action === 'report' && form?.success}
-								>
-									{form?.action === 'report' ? form?.message ?? '' : ''}
-								</p>
-								<div class="mt-4 flex items-center justify-between">
-									<Dialog.Close type="button" class="btn btn-outline btn-neutral text-lg"
-										>Cancel</Dialog.Close
-									>
-									<button class="btn btn-error text-lg">Create a report</button>
-								</div>
-							</form>
-						</Dialog.Content>
-					</Dialog.Portal>
-				</Dialog.Root>
+				<ReportDialog
+					personaAvatar={`${env.PUBLIC_S3_CDN_URL}/persona_avatars/${data.persona.id}.png`}
+					personaName={data.persona.name}
+					success={form?.action === 'report' && form?.success}
+					message={form?.action === 'report' ? form?.message ?? '' : ''}
+				/>
 			</div>
 			{#if data.persona.userId !== data.user?.id}
 				<div class="flex items-center justify-between">
