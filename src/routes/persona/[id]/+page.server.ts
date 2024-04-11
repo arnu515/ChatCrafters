@@ -1,8 +1,9 @@
-import { error, fail, redirect } from "@sveltejs/kit"
+import { error, fail } from "@sveltejs/kit"
 import type { PageServerLoad, Actions } from "./$types"
 import type { Persona, User } from "$lib/dbtypes"
 import { z } from "zod"
 import { genId } from "$lib"
+import { userGuard } from "$lib/auth"
 
 export const load: PageServerLoad = async (event) => {
 	const persona = await event.platform!.env.db.prepare("SELECT personas.*, users.username, users.avatar_url FROM personas INNER JOIN users ON personas.userId = users.id WHERE personas.id = ?1").bind(event.params.id).first<Persona & { username: User['username'], avatar_url: User['avatar_url'] }>()
@@ -24,10 +25,7 @@ export const actions: Actions = {
 			})
 		}
 
-		const user = event.locals.user
-		if (!user) {
-			return redirect(302, '/auth?mode=login')
-		}
+		const user = userGuard(event.locals, event.url)
 
 		try {
 			await event.platform!.env.db.prepare("INSERT INTO reports (id, report, personaId, userId) VALUES (?1, ?2, ?3, ?4)").bind(

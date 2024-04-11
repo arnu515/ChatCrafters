@@ -1,9 +1,7 @@
-import { redirect } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
+import { userGuard } from "$lib/auth";
 
-export const load: PageLoad = async ({ parent }) => {
-	const parentData = (await parent())
-	if (!parentData?.user)
-		redirect(302, "/auth?mode=login")
+export const load: PageLoad = async ({ parent, url }) => {
+	userGuard(await parent(), url)
 }
 

@@ -1,8 +1,9 @@
-import { json, redirect } from "@sveltejs/kit";
+import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types"
 import { z } from "zod";
 import { genId } from "$lib";
 import { putFile } from "$lib/s3.server";
+import { userGuard } from "$lib/auth";
 
 export const POST: RequestHandler = async (event) => {
 	const fd = await event.request.formData()
@@ -42,11 +43,7 @@ export const POST: RequestHandler = async (event) => {
 		}, { status: 400 })
 	}
 
-	const user = event.locals.user
-
-	if (!user) {
-		redirect(302, "/auth?mode=login")
-	}
+	const user = userGuard(event.locals, event.url)
 
 	try {
 		const res = await event.platform!.env.db.prepare("INSERT INTO personas (id, name, summary, model, prompt, attire, userId) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) RETURNING id").bind(

@@ -57,6 +57,13 @@ export const actions = {
 			}
 		}
 
+		const nextParam = event.url.searchParams.get('next')
+		let nextUrl = event.url
+		if (typeof nextParam === 'string' && nextParam.trim()) {
+			nextUrl = new URL(nextParam, event.url.origin)
+			if (nextUrl.origin !== event.url.origin) nextUrl = event.url
+		}
+
 		if (mode === 'login') {
 			try {
 				const d = await event.platform!.env.db.prepare("SELECT * FROM users WHERE email = ?1").bind(s.data.email).first<User>()
@@ -75,7 +82,7 @@ export const actions = {
 					created_at: d.created_at
 				}
 
-				redirect(302, '/')
+				redirect(302, nextUrl.pathname)
 			} catch (e) {
 				if (e instanceof Error) {
 					return {
@@ -135,7 +142,7 @@ export const actions = {
 					created_at: d.created_at
 				}
 
-				redirect(302, '/')
+				redirect(302, nextUrl.pathname)
 			} catch (e) {
 				if (e instanceof Error) {
 					return {

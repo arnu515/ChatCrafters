@@ -1,15 +1,13 @@
-import { fail, redirect } from "@sveltejs/kit"
+import { fail } from "@sveltejs/kit"
 import type { Actions } from "./$types"
 import { z } from "zod"
 import { putFile } from "$lib/s3.server"
 import { env } from "$env/dynamic/public"
+import { userGuard } from "$lib/auth"
 
 export const actions = {
 	username: async (event) => {
-		const user = event.locals.user
-		if (!user) {
-			redirect(302, "/auth?mode=login")
-		}
+		const user = userGuard(event.locals, event.url)
 
 		const usernameSchema = z.string().max(64).min(4).trim()
 		const usernameResult = usernameSchema.safeParse((await event.request.formData()).get("username"))
@@ -46,9 +44,7 @@ export const actions = {
 		if (avatar.size >= 1048576)  // 1MiB
 			return fail(400, { message: "Please upload a file less than 1MiB in size", action: "avatar", success: false })
 
-		const user = event.locals.user
-		if (!user)
-			redirect(302, "/auth?mode=login")
+		const user = userGuard(event.locals, event.url)
 
 		try {
 			const data = await avatar.arrayBuffer()
@@ -68,9 +64,7 @@ export const actions = {
 		}
 	},
 	resetAvatar: async (event) => {
-		const user = event.locals.user
-		if (!user)
-			redirect(302, "/auth?mode=login")
+		const user = userGuard(event.locals, event.url)
 		try {
 			const res = await fetch("https://api.dicebear.com/8.x/identicon/png?" + new URLSearchParams({
 				// @ts-ignore

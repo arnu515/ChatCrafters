@@ -1,7 +1,8 @@
-import { json, redirect } from "@sveltejs/kit"
+import { json } from "@sveltejs/kit"
 import { env } from "$env/dynamic/private"
 import { z } from "zod"
 import type { RequestHandler } from "./$types"
+import { userGuard } from "$lib/auth"
 
 export const POST: RequestHandler = async (event) => {
 	const data = z.string().min(30).max(512).trim().safeParse((await event.request.json()).attire)
@@ -11,11 +12,7 @@ export const POST: RequestHandler = async (event) => {
 
 	const prompt = data.data + ' front-view. top-down photo. realistic.'
 
-	const user = event.locals.user
-
-	if (!user) {
-		redirect(302, "/auth?mode=login")
-	}
+	userGuard(event.locals, event.url)
 
 	try {
 		const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/ai/run/@cf/bytedance/stable-diffusion-xl-lightning`, {
