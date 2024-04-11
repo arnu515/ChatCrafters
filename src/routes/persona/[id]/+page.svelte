@@ -153,9 +153,14 @@
 					</div>
 					Messages
 					<button
-						class="btn-ghost ml-auto rounded-full p-2 text-error"
+						class="btn-ghost ml-auto rounded-full p-2"
 						title="Delete messages"
 						aria-label="Delete messages"
+						class:text-base-content={!messages.length}
+						class:opacity-50={!messages.length}
+						class:text-error={!!messages.length}
+						class:cursor-not-allowed={!messages.length}
+						disabled={!messages.length}
 						on:click={() => {
 							if (window.confirm('Are you sure you want to delete all messages?')) messages = []
 						}}
