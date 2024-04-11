@@ -36,9 +36,7 @@ database_id = "SOME-RANDOM-UUID"
 Create the schema using
 
 ```bash
-# TODO: Use a for loop to run all sql/ files
-
-pnpm exec wrangler d1 execute NAME_OF_DB --remote --file sql/0000_create-users-table.sql
+ls sql/*.sql -1 | xargs -L 1 -t pnpm exec wrangler d1 execute chatcrafters --remote --file
 ```
 
 3. Build the app with `pnpm build`.
