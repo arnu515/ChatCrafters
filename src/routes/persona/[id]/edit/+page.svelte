@@ -16,6 +16,7 @@
 	let image: { data: ArrayBuffer; src: string } | undefined = undefined
 	let imageGenerating = false
 	let editingPersona = false
+	let deletingPersona = false
 	let error: string = ''
 	let attire: string = data.persona.attire
 
@@ -53,6 +54,7 @@
 	}
 
 	async function genImage() {
+		if (imageGenerating || editingPersona || deletingPersona) return
 		error = ''
 
 		if (!attire.trim()) {
@@ -96,6 +98,7 @@
 	}
 
 	async function editPersona(e: SubmitEvent & { currentTarget: HTMLFormElement }) {
+		if (imageGenerating || editingPersona || deletingPersona) return
 		if (attire.trim() !== data.persona.attire && !image) {
 			alert('Please generate an image first')
 			return
@@ -131,13 +134,43 @@
 			editingPersona = false
 		}
 	}
+
+	async function deletePersona() {
+		if (imageGenerating || editingPersona || deletingPersona) return
+
+		error = ''
+
+		try {
+			deletingPersona = true
+
+			const res = await fetch(`/persona/${data.persona.id}/delete`, {
+				method: 'DELETE'
+			})
+			const resData = await res.json()
+
+			if (!res.ok) {
+				throw new Error(resData.error ?? '')
+			}
+
+			goto('/my')
+		} catch (e) {
+			if (e instanceof Error) {
+				error = 'An unknown error occured: ' + e.message
+			} else {
+				error = 'An unknown error occured'
+			}
+			console.error(e)
+		} finally {
+			deletingPersona = false
+		}
+	}
 </script>
 
 <svelte:head>
 	<title>Edit Persona | ChatCrafters</title>
 </svelte:head>
 
-<form class="container mx-auto my-10 p-4" on:submit|preventDefault={editPersona}>
+<form class="container mx-auto mb-4 mt-10 p-4" on:submit|preventDefault={editPersona}>
 	<h1 class="text-3xl font-semibold">Edit Persona</h1>
 
 	<div>
@@ -264,7 +297,7 @@
 		<button
 			class="btn btn-outline btn-neutral btn-wide flex items-center text-lg sm:mr-auto sm:w-[initial]"
 			type="button"
-			disabled={imageGenerating || editingPersona}
+			disabled={imageGenerating || editingPersona || deletingPersona}
 			on:click={() => {
 				if (confirm("Are you sure? This will erase all data you've typed in the form.")) {
 					resetForm()
@@ -278,7 +311,10 @@
 			class="btn btn-outline btn-primary btn-wide flex items-center gap-2 text-lg sm:w-[initial]"
 			type="button"
 			on:click={genImage}
-			disabled={attire === data.persona.attire || imageGenerating || editingPersona}
+			disabled={attire === data.persona.attire ||
+				imageGenerating ||
+				editingPersona ||
+				deletingPersona}
 		>
 			{#if imageGenerating}
 				<span class="loading loading-spinner"></span>
@@ -288,7 +324,10 @@
 		>
 		<button
 			class="btn btn-primary btn-wide flex items-center gap-2 text-lg sm:w-[initial]"
-			disabled={(attire !== data.persona.attire && !image) || imageGenerating || editingPersona}
+			disabled={(attire !== data.persona.attire && !image) ||
+				imageGenerating ||
+				editingPersona ||
+				deletingPersona}
 		>
 			{#if editingPersona}
 				<span class="loading loading-spinner"></span>
@@ -309,6 +348,34 @@
 				: ''}
 	</p>
 </form>
+
+<div class="container mx-auto p-4">
+	<div
+		class="flex flex-col items-center justify-center gap-4 rounded-box border-2 border-error bg-base-300 p-4 md:flex-row md:justify-between"
+	>
+		<div class="flex flex-col gap-2">
+			<h3 class="text-xl font-semibold text-error">Delete persona</h3>
+			<p class="text-error/80">
+				Are you sure you want to delete this persona? This action is <strong class="font-semibold"
+					>IRREVERSIBLE</strong
+				> and after deletion, nobody will be able to send messages to this Persona.
+			</p>
+		</div>
+		<button
+			class="btn btn-error btn-wide text-lg"
+			on:click={() => {
+				if (confirm('Are you sure you want to delete this persona? This action is IRREVERSIBLE.'))
+					deletePersona()
+			}}
+			disabled={deletingPersona || imageGenerating || editingPersona}
+		>
+			{#if deletingPersona}
+				<span class="loading loading-spinner"></span>
+			{/if}
+			Delete persona</button
+		>
+	</div>
+</div>
 
 <style lang="postcss">
 	form > div:first-of-type {
