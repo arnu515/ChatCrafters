@@ -68,6 +68,7 @@
 	}
 
 	async function genImage() {
+		error = ''
 		const attire = (document.getElementById('attire') as HTMLInputElement)?.value
 		if (!attire?.trim()) {
 			error =
@@ -113,6 +114,8 @@
 			alert('Please generate an image first')
 			return
 		}
+
+		error = ''
 
 		const fd = new FormData(e.currentTarget)
 
