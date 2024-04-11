@@ -49,6 +49,7 @@
 		"@fontsource-variable/tektur": "^5.0.4",
 		"bcryptjs": "^2.4.3",
 		"bits-ui": "^0.21.2",
+		"dayjs": "^1.11.10",
 		"lucide-svelte": "^0.365.0",
 		"nanoid": "^5.0.7",
 		"zod": "^3.22.4"
