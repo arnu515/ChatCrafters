@@ -42,7 +42,7 @@
 				.parseAsync(messagesLSJson)
 				.then((m: any) => {
 					messages = m
-					// loadingMessages = false
+					loadingMessages = false
 				})
 		} catch {
 			loadingMessages = true
