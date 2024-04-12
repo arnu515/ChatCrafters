@@ -70,7 +70,7 @@ export const actions = {
 		let nextUrl = new URL('/', event.url.origin)
 		if (typeof nextParam === 'string' && nextParam.trim()) {
 			const possibleNextUrl = new URL(nextParam, event.url.origin)
-			if (possibleNextUrl.origin !== event.url.origin) nextUrl = possibleNextUrl
+			if (possibleNextUrl.origin === event.url.origin) nextUrl = possibleNextUrl
 		}
 
 		if (mode === 'login') {
@@ -95,7 +95,6 @@ export const actions = {
 					created_at: d.created_at
 				}
 
-				console.log(nextUrl, nextUrl.pathname)
 				redirect(302, nextUrl.pathname)
 			} catch (e) {
 				if (e instanceof Error) {
