@@ -128,7 +128,7 @@
 		>.
 	</p>
 	<p class="flex gap-4 opacity-75">
-		<a href="/" class="link">My submission post</a> |
+		<a href="https://dev.to/arnu515/chatcrafters-chat-with-ai-powered-personas-40o0" class="link">My submission post</a> |
 		<a href="https://github.com/arnu515/chatcrafters" class="link">GitHub</a>
 	</p>
 	<div class="text-sm opacity-50">Made with ❤️ in 🇮🇳</div>
