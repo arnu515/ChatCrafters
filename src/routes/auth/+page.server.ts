@@ -39,10 +39,13 @@ export const actions = {
 					cpassword: z.string().max(128),
 					username: z
 						.string()
-						.regex(/^[\w-]+$/)
+						.trim()
+						.regex(
+							/^[\w-]+$/,
+							'Username can only contain latin letters, numbers, underscores and hyphens.'
+						)
 						.max(64)
 						.min(4)
-						.trim()
 				})
 			)
 		}
