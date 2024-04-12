@@ -15,7 +15,9 @@
 	</p>
 
 	{#if Array.isArray(data.personas) && data.personas.length > 0}
-		<div class="my-12 grid grid-cols-1 gap-x-2 gap-y-4 md:grid-cols-2 lg:grid-cols-3">
+		<div
+			class="my-12 grid grid-cols-1 gap-x-2 gap-y-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+		>
 			{#each data.personas as persona}
 				<Persona {persona} />
 			{/each}
