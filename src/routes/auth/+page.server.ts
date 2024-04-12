@@ -37,7 +37,12 @@ export const actions = {
 			schema = schema.merge(
 				z.object({
 					cpassword: z.string().max(128),
-					username: z.string().max(64).min(4).trim()
+					username: z
+						.string()
+						.regex(/^[\w-]+$/)
+						.max(64)
+						.min(4)
+						.trim()
 				})
 			)
 		}
@@ -130,13 +135,13 @@ export const actions = {
 				// create an avatar for the user
 				const res = await fetch(
 					'https://api.dicebear.com/8.x/identicon/png?' +
-					new URLSearchParams({
-						// @ts-ignore
-						seed: s.data.username,
-						backgroundColor: 'b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
-						backgroundType: 'gradientLinear',
-						backgroundRotation: '0,45,90'
-					}).toString()
+						new URLSearchParams({
+							// @ts-ignore
+							seed: s.data.username,
+							backgroundColor: 'b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
+							backgroundType: 'gradientLinear',
+							backgroundRotation: '0,45,90'
+						}).toString()
 				)
 				if (res.ok && res.headers.get('content-type') === 'image/png') {
 					const data = await res.arrayBuffer()
@@ -171,7 +176,7 @@ export const actions = {
 						success: false,
 						data: s.data,
 						error: e.message.startsWith('D1_ERROR: UNIQUE')
-							? 'Error: Email already taken.'
+							? 'Error: Email or username already taken.'
 							: e.message
 					}
 				}
