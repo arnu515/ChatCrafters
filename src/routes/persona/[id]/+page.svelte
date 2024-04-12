@@ -99,9 +99,7 @@
 		messages = messages
 			.slice(0, -1)
 			.concat(
-				messages.length === 0 && !showHeader
-					? [message]
-					: [{ ...lastMsg!, showFooter: false }, message]
+				messages.length === 0 ? [message] : [{ ...lastMsg!, showFooter: showHeader }, message]
 			)
 		tick().then(() => {
 			const el = document.getElementById('messages-box')!
@@ -317,7 +315,7 @@
 					{#if typeof messageBeingGenerated !== 'undefined'}
 						<div class="chat chat-start my-4">
 							<div class="avatar chat-image">
-								<div class="h-8 w-8">
+								<div class="h-8 w-8 rounded-full">
 									<img
 										src={`${env.PUBLIC_S3_CDN_URL}/persona_avatars/${data.persona.id}.png`}
 										alt="Persona's Avatar"
