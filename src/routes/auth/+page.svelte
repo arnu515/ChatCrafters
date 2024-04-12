@@ -92,7 +92,10 @@
 		{/if}
 		<div class="my-4 flex flex-col justify-center gap-2">
 			<a
-				href="/auth?mode={data.mode === 'signup' ? 'login' : 'signup'}"
+				href="/auth?{new URLSearchParams({
+					mode: data.mode === 'signup' ? 'login' : 'signup',
+					next: data.next
+				})}"
 				class="link link-primary w-full text-right text-sm"
 			>
 				{TEXT.alternative[data.mode]}
