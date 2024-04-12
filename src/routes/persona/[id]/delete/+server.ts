@@ -21,7 +21,10 @@ export const DELETE: RequestHandler = async event => {
 		)
 
 	// delete from S3
-	await deleteFile(`persona_avatars/${persona.id}.png`)
-
+	try {
+		await deleteFile(`persona_avatars/${persona.id}.png`)
+	} catch (e) {
+		console.error(e)
+	}
 	return json(persona)
 }
