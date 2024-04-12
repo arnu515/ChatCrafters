@@ -65,14 +65,14 @@
 			name: 'Mistral v0.2 (7B)',
 			desc: 'A good all-round model',
 			beta: true,
-			link: 'https://developers.cloudflare.com/workers-ai/models/llama-2-7b-chat-int8/'
+			link: 'https://developers.cloudflare.com/workers-ai/models/mistral-7b-instruct-v0.2/'
 		},
 		{
 			id: '@cf/meta/llama-2-7b-chat-int8',
 			name: 'Llama2 Chat (7B) [int8]',
 			desc: 'Good for roleplaying',
 			beta: false,
-			link: 'https://developers.cloudflare.com/workers-ai/models/mistral-7b-instruct-v0.2/'
+			link: 'https://developers.cloudflare.com/workers-ai/models/llama-2-7b-chat-int8/'
 		},
 		{
 			id: '@cf/tinyllama/tinyllama-1.1b-chat-v1.0',
@@ -80,6 +80,27 @@
 			desc: 'Fast model',
 			beta: true,
 			link: 'https://developers.cloudflare.com/workers-ai/models/tinyllama-1.1b-chat-v1.0/'
+		},
+		{
+			id: '@cf/qwen/qwen1.5-0.5b-chat',
+			name: 'Qwen 1.5 (5B)',
+			desc: '',
+			beta: true,
+			link: 'https://developers.cloudflare.com/workers-ai/models/qwen1.5-0.5b-chat'
+		},
+		{
+			id: '@hf/thebloke/openhermes-2.5-mistral-7b-awq',
+			name: 'OpenHermes 2.5 (7B)',
+			desc: '',
+			beta: true,
+			link: 'https://developers.cloudflare.com/workers-ai/models/openhermes-2.5-mistral-7b-awq'
+		},
+		{
+			id: '@hf/thebloke/neural-chat-7b-v3-1-awq',
+			name: 'NeuralChat v3.1 (7B)',
+			desc: '',
+			beta: true,
+			link: 'https://developers.cloudflare.com/workers-ai/models/neural-chat-7b-v3-1-awq'
 		}
 	]
 

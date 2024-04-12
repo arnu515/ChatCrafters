@@ -15,10 +15,7 @@ export interface Persona {
 	id: string
 	name: string
 	summary: string
-	model:
-		| '@cf/tinyllama/tinyllama-1.1b-chat-v1.0'
-		| '@cf/meta/llama-2-7b-chat-int8'
-		| '@hf/mistralai/mistral-7b-instruct-v0.2'
+	model: string
 	prompt: string
 	attire: string
 	userId: string
