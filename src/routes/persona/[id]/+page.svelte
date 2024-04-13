@@ -378,6 +378,19 @@
 										>
 											<PencilIcon class="h-4 w-4" />
 										</button>
+										<button
+											on:click={() => {
+												if (
+													confirm(
+														"Are you sure? Both your message and the LLM's response will be deleted"
+													)
+												) {
+													messages = messages.toSpliced(idx, 2)
+												}
+											}}
+										>
+											<TrashIcon class="h-4 w-4" />
+										</button>
 									{/if}
 								</div>
 							{/if}
