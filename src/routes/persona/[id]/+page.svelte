@@ -120,6 +120,14 @@
 		})
 	}
 
+	function getMessagesForSending() {
+		let toTruncate = Number((window as any)['NUMBER_OF_MESSAGES_TO_SEND'] || 16)
+		return messages.slice(messages.length - toTruncate).map(i => ({
+			role: i.by === 'persona' ? 'assistant' : 'user',
+			content: i.text
+		}))
+	}
+
 	async function sendMessage(e: SubmitEvent & { currentTarget: HTMLFormElement }) {
 		if (typeof messageBeingGenerated !== 'undefined' || sendingMessage) return
 		const fd = new FormData(e.currentTarget)
@@ -131,17 +139,12 @@
 			const res = await fetch(`/persona/${data.persona.id}/message`, {
 				method: 'POST',
 				body: JSON.stringify({
-					messages: messages
-						.map(i => ({
-							role: i.by === 'persona' ? 'assistant' : 'user',
-							content: i.text
-						}))
-						.concat([
-							{
-								role: 'user',
-								content: message.trim()
-							}
-						])
+					messages: getMessagesForSending().concat([
+						{
+							role: 'user',
+							content: message.trim()
+						}
+					])
 				}),
 				headers: { 'Content-Type': 'application/json' }
 			})
@@ -180,17 +183,12 @@
 			const res = await fetch(`/persona/${data.persona.id}/message`, {
 				method: 'POST',
 				body: JSON.stringify({
-					messages: messages
-						.map(i => ({
-							role: i.by === 'persona' ? 'assistant' : 'user',
-							content: i.text
-						}))
-						.concat([
-							{
-								role: 'user',
-								content: msg.trim()
-							}
-						])
+					messages: getMessagesForSending().concat([
+						{
+							role: 'user',
+							content: msg.trim()
+						}
+					])
 				}),
 				headers: { 'Content-Type': 'application/json' }
 			})
