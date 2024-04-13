@@ -15,6 +15,8 @@ export const load: PageServerLoad = async event => {
 
 	if (!persona) error(404, 'Persona not found')
 
+	if (persona.private && event.locals.user?.id !== persona.userId) error(404, 'Persona not found')
+
 	return { persona }
 }
 

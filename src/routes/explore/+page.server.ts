@@ -17,8 +17,8 @@ export const load: PageServerLoad = async event => {
 	// by:username
 	// by_id:user_id
 	// name, summary, and attire matching
-	const whereQueries: string[] = []
-	const whereBindings: string[] = []
+	const whereQueries: string[] = ['private = ?']
+	const whereBindings: (string | number)[] = [0]
 	q.match(/by:[\w-]+/gi)?.forEach(x => {
 		whereQueries.push('users.username = ?')
 		whereBindings.push(x.replace('by:', ''))

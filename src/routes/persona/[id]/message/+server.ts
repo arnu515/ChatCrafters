@@ -41,6 +41,9 @@ export const POST: RequestHandler = async event => {
 
 	if (!persona) return json({ error: 'Persona not found' }, { status: 404 })
 
+	if (persona.private && event.locals.user?.id !== persona.userId)
+		return json({ error: 'Persona not found' }, { status: 404 })
+
 	try {
 		const res = await fetch(
 			`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/ai/run/${persona.model}`,
