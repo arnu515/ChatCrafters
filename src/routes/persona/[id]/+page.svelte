@@ -349,7 +349,6 @@
 			</div>
 			<form on:submit|preventDefault={sendMessage} class="m-4 mt-0 flex items-center gap-2">
 				<VoiceButton
-					personaId={data.persona.id}
 					on:recognise={({ detail }) => {
 						const msg = document.getElementById('message')
 						if (msg) msg.value = (msg.value.trim() + ' ' + detail).trim()

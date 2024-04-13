@@ -2,7 +2,6 @@
 	import { MicIcon, StopCircleIcon } from 'lucide-svelte'
 	import { createEventDispatcher, onMount } from 'svelte'
 
-	export let personaId: string
 	const d = createEventDispatcher()
 
 	let loading = false
