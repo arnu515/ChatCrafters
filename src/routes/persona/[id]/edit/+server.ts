@@ -14,6 +14,8 @@ export const POST: RequestHandler = async event => {
 	const prompt = fd.get('prompt')
 	const attire = fd.get('attire')
 	const image = fd.get('image')
+	const isPrivate = fd.get('private') ?? undefined
+	console.log({ isPrivate })
 
 	const parseRes = z
 		.object({
@@ -21,14 +23,20 @@ export const POST: RequestHandler = async event => {
 			model: z.string().trim(),
 			summary: z.string().max(75).trim(),
 			prompt: z.string().min(50).max(1024).trim(),
-			attire: z.string().min(30).max(512).trim()
+			attire: z.string().min(30).max(512).trim(),
+			private: z
+				.string()
+				.max(10)
+				.optional()
+				.transform(v => v === 'true')
 		})
 		.safeParse({
 			name,
 			model,
 			summary,
 			prompt,
-			attire
+			attire,
+			private: isPrivate
 		})
 
 	if (!parseRes.success) {
@@ -85,7 +93,7 @@ export const POST: RequestHandler = async event => {
 	try {
 		await event
 			.platform!.env.db.prepare(
-				'UPDATE personas SET name = ?2, summary = ?3, model = ?4, prompt = ?5, attire = ?6 WHERE id = ?1'
+				'UPDATE personas SET name = ?2, summary = ?3, model = ?4, prompt = ?5, attire = ?6, private = ?7 WHERE id = ?1'
 			)
 			.bind(
 				persona.id,
@@ -93,7 +101,8 @@ export const POST: RequestHandler = async event => {
 				parseRes.data.summary,
 				parseRes.data.model,
 				parseRes.data.prompt,
-				parseRes.data.attire
+				parseRes.data.attire,
+				parseRes.data.private ? 1 : 0
 			)
 			.run()
 

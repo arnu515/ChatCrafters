@@ -6,7 +6,7 @@
 		ChevronsUpDownIcon,
 		ExternalLinkIcon
 	} from 'lucide-svelte'
-	import { Select } from 'bits-ui'
+	import { Select, Switch } from 'bits-ui'
 	import { fly } from 'svelte/transition'
 	import { goto } from '$app/navigation'
 
@@ -14,6 +14,7 @@
 	let imageGenerating = false
 	let creatingPersona = false
 	let error: string = ''
+	let isPrivate = false
 
 	// Yeah these examples were generated with AI too.
 	const EXAMPLES: { name: string; summary: string; prompt: string; attire: string }[] = [
@@ -165,6 +166,7 @@
 		const fd = new FormData(e.currentTarget)
 
 		fd.set('image', new Blob([image.data], { type: 'image/png' }))
+		fd.set('private', isPrivate ? 'true' : 'false')
 
 		creatingPersona = true
 		try {
@@ -308,6 +310,23 @@
 						>Enter a few words to describe how your persona looks, what they're wearing, how the
 						background should be, etc.</span
 					>
+				</div>
+			</label>
+			<label for="private">
+				<div class="label"><span class="label-text text-lg font-medium">Make private</span></div>
+				<Switch.Root
+					id="private"
+					class="inline-flex h-[32px] min-h-[32px] w-[50px] shrink-0 cursor-pointer items-center rounded-full border-2 border-gray-300 px-[3px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content focus-visible:ring-offset-2 focus-visible:ring-offset-base-300 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-base-300 dark:border-gray-700"
+					bind:checked={isPrivate}
+				>
+					<Switch.Thumb
+						class="pointer-events-none block size-[30px] shrink-0 rounded-full bg-base-content transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-[-0.25rem]"
+					/>
+				</Switch.Root>
+				<div class="label">
+					<span class="label-text text-sm">
+						Private personas can only be seen and messaged to by you.
+					</span>
 				</div>
 			</label>
 		</div>

@@ -14,6 +14,7 @@ export const POST: RequestHandler = async event => {
 	const prompt = fd.get('prompt')
 	const attire = fd.get('attire')
 	const image = fd.get('image')
+	const isPrivate = fd.get('private')
 
 	const parseRes = z
 		.object({
@@ -21,14 +22,20 @@ export const POST: RequestHandler = async event => {
 			model: z.string().trim(),
 			summary: z.string().max(75).trim(),
 			prompt: z.string().min(50).max(1024).trim(),
-			attire: z.string().min(30).max(512).trim()
+			attire: z.string().min(30).max(512).trim(),
+			private: z
+				.string()
+				.max(10)
+				.optional()
+				.transform(v => v === 'true')
 		})
 		.safeParse({
 			name,
 			model,
 			summary,
 			prompt,
-			attire
+			attire,
+			private: isPrivate
 		})
 
 	if (!parseRes.success) {
@@ -72,7 +79,7 @@ export const POST: RequestHandler = async event => {
 	try {
 		const res = await event
 			.platform!.env.db.prepare(
-				'INSERT INTO personas (id, name, summary, model, prompt, attire, userId) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) RETURNING id'
+				'INSERT INTO personas (id, name, summary, model, prompt, attire, private, userId) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8) RETURNING id'
 			)
 			.bind(
 				genId(),
@@ -81,6 +88,7 @@ export const POST: RequestHandler = async event => {
 				parseRes.data.model,
 				parseRes.data.prompt,
 				parseRes.data.attire,
+				parseRes.data.private ? 1 : 0,
 				user.id
 			)
 			.first()

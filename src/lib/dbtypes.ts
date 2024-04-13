@@ -18,5 +18,6 @@ export interface Persona {
 	model: string
 	prompt: string
 	attire: string
+	private: boolean
 	userId: string
 }

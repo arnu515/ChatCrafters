@@ -7,7 +7,7 @@
 		ExternalLinkIcon,
 		ArrowLeftIcon
 	} from 'lucide-svelte'
-	import { Select } from 'bits-ui'
+	import { Select, Switch } from 'bits-ui'
 	import { fly } from 'svelte/transition'
 	import { goto } from '$app/navigation'
 	import { env } from '$env/dynamic/public'
@@ -20,6 +20,7 @@
 	let deletingPersona = false
 	let error: string = ''
 	let attire: string = data.persona.attire
+	let isPrivate = data.persona.private
 
 	// https://developers.cloudflare.com/workers-ai/models/
 	const MODELS: { id: string; name: string; desc: string; beta: boolean; link: string }[] = [
@@ -130,6 +131,7 @@
 
 		const fd = new FormData(e.currentTarget)
 
+		fd.set('private', isPrivate ? 'true' : 'false')
 		if (image) fd.set('image', new Blob([image.data], { type: 'image/png' }))
 
 		editingPersona = true
@@ -301,6 +303,18 @@
 					maxlength={512}
 					placeholder="This will be used to generate your persona's picture"
 				/>
+			</label>
+			<label for="private">
+				<div class="label"><span class="label-text text-lg font-medium">Make private</span></div>
+				<Switch.Root
+					id="private"
+					class="inline-flex h-[32px] min-h-[32px] w-[50px] shrink-0 cursor-pointer items-center rounded-full border-2 border-gray-300 px-[3px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content focus-visible:ring-offset-2 focus-visible:ring-offset-base-300 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-base-300 dark:border-gray-700"
+					bind:checked={isPrivate}
+				>
+					<Switch.Thumb
+						class="pointer-events-none block size-[30px] shrink-0 rounded-full bg-base-content transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-[-0.25rem]"
+					/>
+				</Switch.Root>
 			</label>
 		</div>
 		<aside class="col-span-2 flex flex-col items-center gap-4 p-4 md:col-span-1">
