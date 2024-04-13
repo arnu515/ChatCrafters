@@ -21,3 +21,9 @@ export interface Persona {
 	private: boolean
 	userId: string
 }
+
+export interface VoiceActivity {
+	userId: string
+	amount: number
+	d: string
+}
