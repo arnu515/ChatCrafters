@@ -13,9 +13,11 @@ View my submission post at <https://dev.to/arnu515/chatcrafters-chat-with-ai-pow
 
 ## AI Models used
 
-This application uses seven different models!
+This application uses eight different models!
 
 One of them being [Stable Diffusion XL Lightning](https://developers.cloudflare.com/workers-ai/models/stable-diffusion-xl-lightning/), for generating Persona images.
+
+It also uses [OpenAI Whisper](https://developers.cloudflare.com/workers-ai/models/whisper/) for speech recognition, so you can talk to your Personas!
 
 The other six are Text Generation models. They are:
 
