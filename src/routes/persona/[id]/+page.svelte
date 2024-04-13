@@ -11,6 +11,7 @@
 	import { z } from 'zod'
 	import { parseSSE } from '$lib/sse'
 	import VoiceButton from './voiceButton.svelte'
+	import { browser } from '$app/environment'
 
 	dayjs.extend(rt)
 
@@ -68,7 +69,7 @@
 		}
 	})
 	onDestroy(() => {
-		localStorage.setItem(`messages:${data.persona.id}`, JSON.stringify(messages))
+		if (browser) localStorage.setItem(`messages:${data.persona.id}`, JSON.stringify(messages))
 	})
 
 	function onGenerate(message: string) {
