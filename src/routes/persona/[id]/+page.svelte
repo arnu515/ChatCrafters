@@ -479,7 +479,6 @@
 	error={editMessageError}
 	loading={sendingMessage || typeof messageBeingGenerated !== 'undefined'}
 	on:close={() => {
-		console.log('close')
 		messageTextBeingEdited = ''
 		idxOfMessageBeingEdited = -1
 	}}

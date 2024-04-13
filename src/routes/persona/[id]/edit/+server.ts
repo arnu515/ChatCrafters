@@ -15,7 +15,6 @@ export const POST: RequestHandler = async event => {
 	const attire = fd.get('attire')
 	const image = fd.get('image')
 	const isPrivate = fd.get('private') ?? undefined
-	console.log({ isPrivate })
 
 	const parseRes = z
 		.object({
