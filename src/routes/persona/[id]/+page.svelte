@@ -68,8 +68,7 @@
 		}
 	})
 	onDestroy(() => {
-		if (messages.length > 0)
-			localStorage.setItem(`messages:${data.persona.id}`, JSON.stringify(messages))
+		localStorage.setItem(`messages:${data.persona.id}`, JSON.stringify(messages))
 	})
 
 	function onGenerate(message: string) {
@@ -93,7 +92,7 @@
 			messageBeingGenerated.endsWith('</s>')
 				? messageBeingGenerated.slice(0, -4)
 				: messageBeingGenerated.endsWith('*')
-					? messageBeingGenerated.replace(/\*+$/, '*')
+					? messageBeingGenerated.replace(/\*+/g, '*')
 					: messageBeingGenerated
 		)
 		messageBeingGenerated = undefined
