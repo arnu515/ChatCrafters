@@ -86,12 +86,15 @@
 
 	function doneGenerating() {
 		if (!messageBeingGenerated) return
-		// mistral always adds a </s> to the end of its messages
+		// mistral always adds a </s> at the end of its messages
+		// llama sometimes adds multiple *s at the end of its messages
 		addMessage(
 			'persona',
-			data.persona.model.includes('mistral') && messageBeingGenerated.endsWith('</s>')
+			messageBeingGenerated.endsWith('</s>')
 				? messageBeingGenerated.slice(0, -4)
-				: messageBeingGenerated
+				: messageBeingGenerated.endsWith('*')
+					? messageBeingGenerated.replace(/\*+$/, '*')
+					: messageBeingGenerated
 		)
 		messageBeingGenerated = undefined
 	}
