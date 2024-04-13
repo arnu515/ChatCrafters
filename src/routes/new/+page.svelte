@@ -83,11 +83,11 @@
 			link: 'https://developers.cloudflare.com/workers-ai/models/tinyllama-1.1b-chat-v1.0/'
 		},
 		{
-			id: '@cf/qwen/qwen1.5-0.5b-chat',
-			name: 'Qwen 1.5 (5B)',
-			desc: 'Good for Chinese.',
+			id: '@hf/thebloke/llama-2-13b-chat-awq',
+			name: 'Llama 2 Chat (13B) [awq]',
+			desc: '13B Llama variant',
 			beta: true,
-			link: 'https://developers.cloudflare.com/workers-ai/models/qwen1.5-0.5b-chat'
+			link: 'https://developers.cloudflare.com/workers-ai/models/llama-2-13b-chat-awq/'
 		},
 		{
 			id: '@hf/thebloke/openhermes-2.5-mistral-7b-awq',

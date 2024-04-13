@@ -25,7 +25,7 @@ The other six are Text Generation models. They are:
 - [Mistral v0.2](https://developers.cloudflare.com/workers-ai/models/mistral-7b-instruct-v0.2/)
 - [Neural Chat](https://developers.cloudflare.com/workers-ai/models/neural-chat-7b-v3-1-awq/)
 - [OpenHermes](https://developers.cloudflare.com/workers-ai/models/openhermes-2.5-mistral-7b-awq/)
-- [Qwen](https://developers.cloudflare.com/workers-ai/models/qwen1.5-7b-chat-awq/)
+- [Llama2 13B](https://developers.cloudflare.com/workers-ai/models/llama-2-13b-chat-awq/)
 - [TinyLlama](https://developers.cloudflare.com/workers-ai/models/tinyllama-1.1b-chat-v1.0/)
 
 ## Tech stack

@@ -52,7 +52,7 @@ export const POST: RequestHandler = async event => {
 			'@hf/mistralai/mistral-7b-instruct-v0.2',
 			'@cf/meta/llama-2-7b-chat-int8',
 			'@cf/tinyllama/tinyllama-1.1b-chat-v1.0',
-			'@cf/qwen/qwen1.5-0.5b-chat',
+			'hf/thebloke/llama-2-13b-chat-awq',
 			'@hf/thebloke/openhermes-2.5-mistral-7b-awq',
 			'@hf/thebloke/neural-chat-7b-v3-1-awq'
 		].includes(parseRes.data.model)
