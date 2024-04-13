@@ -1,9 +1,11 @@
-import { fail } from '@sveltejs/kit'
+import { fail, redirect } from '@sveltejs/kit'
 import type { Actions } from './$types'
 import { z } from 'zod'
-import { putFile } from '$lib/s3.server'
+import { deleteFile, putFile } from '$lib/s3.server'
 import { env } from '$env/dynamic/public'
 import { userGuard } from '$lib/auth'
+import bcryptjs from 'bcryptjs'
+import { saveSession } from '$lib/auth/sessions.server'
 
 export const actions = {
 	username: async event => {
@@ -119,7 +121,58 @@ export const actions = {
 			throw e
 		}
 	},
-	deleteAccount: () => {
-		return fail(501, { message: 'Not Implemented.', action: 'delete', success: false })
+	deleteAccount: async event => {
+		const password = (await event.request.formData()).get('password')
+		if (typeof password !== 'string' || !password) {
+			return fail(400, {
+				message: 'Please enter your password',
+				action: 'delete',
+				success: false
+			})
+		}
+
+		const user = userGuard(event.locals, event.url)
+
+		try {
+			const { count } = (await event
+				.platform!.env.db.prepare('SELECT COUNT(id) AS count FROM personas WHERE userId = ?')
+				.bind(user.id)
+				.first<{ count: number }>())!
+
+			if (count > 0)
+				return fail(403, {
+					message:
+						'Please delete all of your personas manually. This includes private personas too.',
+					action: 'delete',
+					success: false
+				})
+
+			const { password: userPassword } = (await event
+				.platform!.env.db.prepare('SELECT password FROM users WHERE id = ?')
+				.bind(user.id)
+				.first<{ password: string }>())!
+
+			if (!bcryptjs.compareSync(password, userPassword))
+				return fail(403, { message: 'Invalid password', action: 'delete', success: false })
+
+			await event.platform!.env.db.prepare('DELETE FROM users WHERE id = ?').bind(user.id).run()
+		} catch (e) {
+			if (e instanceof Error) {
+				return fail(500, { message: e.message, action: 'delete', success: false })
+			}
+			throw e
+		}
+
+		try {
+			// delete from S3
+			await deleteFile(`avatars/${user.id}.png`)
+		} catch (e) {
+			console.error(e)
+		}
+
+		event.locals.user = null
+		await saveSession({ ...event.locals.session, userId: undefined }, event.cookies)
+
+		redirect(302, '/auth?mode=login')
 	}
 } satisfies Actions

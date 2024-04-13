@@ -98,9 +98,10 @@
 							</Dialog.Title>
 							<form action="?/deleteAccount" method="post">
 								<p class="my-4 text-lg font-medium">
-									Are you sure you want to delete your account? All your personas, messages, images,
-									and other data will be <strong class="font-semibold">PERMANENTLY</strong> deleted.
-									There is no going back.
+									Are you sure you want to delete your account? This is a <strong
+										class="font-semibold">PERMANENT</strong
+									> action and there is NO going back! To be able to delete your account, you must delete
+									any personas (both public and private) that you have.
 								</p>
 								<label for="password">
 									<div class="label">
