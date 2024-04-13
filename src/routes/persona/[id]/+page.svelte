@@ -40,30 +40,25 @@
 			if (!messagesLS) return
 			const messagesLSJson = JSON.parse(messagesLS)
 			loadingMessages = true
-			z.object({
-				text: z.string(),
-				by: z.string().refine(v => ['user', 'persona'].includes(v)),
-				at: z
-					.string()
-					.datetime({ precision: 3 })
-					.transform(v => new Date(v)),
-				showHeader: z.boolean(),
-				showFooter: z.boolean()
-			})
+			messages = z
+				.object({
+					text: z.string(),
+					by: z.string().refine(v => ['user', 'persona'].includes(v)),
+					at: z
+						.string()
+						.datetime({ precision: 3 })
+						.transform(v => new Date(v)),
+					showHeader: z.boolean(),
+					showFooter: z.boolean()
+				})
 				.array()
-				.parseAsync(messagesLSJson)
-				.then((m: any) => {
-					messages = m
-					loadingMessages = false
-					tick().then(() => {
-						const el = document.getElementById('messages-box')!
-						el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
-					})
-				})
-				.catch(() => {
-					loadingMessages = false
-					localStorage.removeItem(`messages:${data.persona.id}`)
-				})
+				.parse(messagesLSJson) as any
+
+			loadingMessages = false
+			tick().then(() => {
+				const el = document.getElementById('messages-box')!
+				el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+			})
 		} catch {
 			loadingMessages = false
 			localStorage.removeItem(`messages:${data.persona.id}`)
