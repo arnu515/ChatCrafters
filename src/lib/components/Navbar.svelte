@@ -60,7 +60,7 @@
 					<MenuIcon class="h-6 w-6 fill-base-content" />
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content
-					class="shadow-popover w-full max-w-[225px] rounded-lg border border-gray-300 bg-base-300 px-1 py-1.5 dark:border-gray-300"
+					class="shadow-popover z-20 w-full max-w-[225px] rounded-lg border border-gray-300 bg-base-300 px-1 py-1.5 dark:border-gray-300"
 					transition={fly}
 					sideOffset={8}
 				>
