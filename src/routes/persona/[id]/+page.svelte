@@ -5,7 +5,7 @@
 	import ShareDialog from './shareDialog.svelte'
 	import ReportDialog from './reportDialog.svelte'
 	import EditDialog from './editDialog.svelte'
-	import { onMount, onDestroy, tick } from 'svelte'
+	import { onMount, tick } from 'svelte'
 	import dayjs from 'dayjs'
 	import rt from 'dayjs/plugin/relativeTime.js'
 	import { z } from 'zod'
@@ -64,9 +64,10 @@
 			localStorage.removeItem(`messages:${data.persona.id}`)
 		}
 	})
-	onDestroy(() => {
+
+	function saveMessages() {
 		if (browser) localStorage.setItem(`messages:${data.persona.id}`, JSON.stringify(messages))
-	})
+	}
 
 	function onGenerate(message: string) {
 		try {
@@ -115,6 +116,7 @@
 		tick().then(() => {
 			const el = document.getElementById('messages-box')!
 			el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+			saveMessages()
 		})
 	}
 
@@ -206,6 +208,7 @@
 			editMessageError = `Could not edit message: ${e instanceof Error ? e.message : 'An unknown error occured'}`
 			// remove edited message and add old ones back
 			messages = messages.slice(0, idx).concat(removedMessages)
+			saveMessages()
 		} finally {
 			sendingMessage = false
 		}
@@ -388,6 +391,7 @@
 													)
 												) {
 													messages = messages.toSpliced(idx, 2)
+													saveMessages()
 												}
 											}}
 										>
