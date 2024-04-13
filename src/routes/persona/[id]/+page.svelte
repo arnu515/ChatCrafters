@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { Separator } from 'bits-ui'
 	import { env } from '$env/dynamic/public'
-	import { SendIcon, TrashIcon } from 'lucide-svelte'
+	import { PencilIcon, SendIcon, TrashIcon } from 'lucide-svelte'
 	import ShareDialog from './shareDialog.svelte'
 	import ReportDialog from './reportDialog.svelte'
+	import EditDialog from './editDialog.svelte'
 	import { onMount, onDestroy, tick } from 'svelte'
 	import dayjs from 'dayjs'
 	import rt from 'dayjs/plugin/relativeTime.js'
@@ -25,6 +26,11 @@
 	let loadingMessages = false
 	let messageBeingGenerated: string | undefined
 	let sendingMessage = false
+
+	let isEditDialogOpen = false
+	let editMessageError = ''
+	let messageTextBeingEdited = ''
+	let idxOfMessageBeingEdited = -1
 
 	onMount(() => {
 		try {
@@ -52,8 +58,12 @@
 						el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
 					})
 				})
+				.catch(() => {
+					loadingMessages = false
+					localStorage.removeItem(`messages:${data.persona.id}`)
+				})
 		} catch {
-			loadingMessages = true
+			loadingMessages = false
 			localStorage.removeItem(`messages:${data.persona.id}`)
 		}
 	})
@@ -147,6 +157,53 @@
 				`Could not send message: ${e instanceof Error ? e.message : 'An unknown error occured'}`
 			)
 			console.error(e)
+		} finally {
+			sendingMessage = false
+		}
+	}
+
+	async function editMessage(msg: string, idx: number) {
+		if (!msg.trim()) return
+		if (idx < 0 || idx >= messages.length || messages[idx].by !== 'user') {
+			editMessageError = 'Could not edit message: Unknown error.'
+			return
+		}
+
+		const removedMessages = messages.slice(idx)
+		messages = messages.slice(0, idx)
+
+		try {
+			sendingMessage = true
+			const res = await fetch(`/persona/${data.persona.id}/message`, {
+				method: 'POST',
+				body: JSON.stringify({
+					messages: messages
+						.map(i => ({
+							role: i.by === 'persona' ? 'assistant' : 'user',
+							content: i.text
+						}))
+						.concat([
+							{
+								role: 'user',
+								content: msg.trim()
+							}
+						])
+				}),
+				headers: { 'Content-Type': 'application/json' }
+			})
+
+			if (res.headers.get('content-type') === 'text/event-stream') {
+				parseSSE(res, onGenerate, doneGenerating)
+				isEditDialogOpen = false
+				addMessage('user', msg.trim())
+			} else {
+				const data = await res.json()
+				throw new Error(data.error ?? data.message ?? 'An unknown error occured')
+			}
+		} catch (e) {
+			editMessageError = `Could not edit message: ${e instanceof Error ? e.message : 'An unknown error occured'}`
+			// remove edited message and add old ones back
+			messages = messages.slice(0, idx).concat(removedMessages)
 		} finally {
 			sendingMessage = false
 		}
@@ -280,7 +337,7 @@
 				{:else if messages.length === 0 && typeof messageBeingGenerated === 'undefined'}
 					<p class="my-8 text-center text-lg opacity-50">Send your first message!</p>
 				{:else}
-					{#each messages as msg}
+					{#each messages as msg, idx}
 						<div
 							class="chat"
 							class:chat-start={msg.by === 'persona'}
@@ -305,10 +362,23 @@
 							{/if}
 							<div class="chat-bubble">{msg.text}</div>
 							{#if msg.showFooter}
-								<div class="chat-footer mb-4 mt-1 text-xs opacity-50">
+								<div class="chat-footer mb-4 mt-1 flex items-center gap-2 text-xs opacity-50">
 									<time datetime={msg.at.toISOString()} title={msg.at.toISOString()}
 										>{dayjs().to(dayjs(msg.at))}</time
 									>
+									{#if msg.by === 'user'}
+										<button
+											on:click={() => {
+												messageTextBeingEdited = msg.text
+												idxOfMessageBeingEdited = idx
+												tick().then(() => {
+													isEditDialogOpen = true
+												})
+											}}
+										>
+											<PencilIcon class="h-4 w-4" />
+										</button>
+									{/if}
 								</div>
 							{/if}
 						</div>
@@ -386,6 +456,21 @@
 		{/if}
 	</div>
 </main>
+
+<EditDialog
+	bind:isOpen={isEditDialogOpen}
+	message={messageTextBeingEdited}
+	error={editMessageError}
+	loading={sendingMessage || typeof messageBeingGenerated !== 'undefined'}
+	on:close={() => {
+		console.log('close')
+		messageTextBeingEdited = ''
+		idxOfMessageBeingEdited = -1
+	}}
+	on:edit={({ detail: msg }) => {
+		editMessage(msg, idxOfMessageBeingEdited)
+	}}
+/>
 
 <style lang="postcss">
 	#messages-box {
