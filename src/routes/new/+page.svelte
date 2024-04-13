@@ -85,21 +85,21 @@
 		{
 			id: '@cf/qwen/qwen1.5-0.5b-chat',
 			name: 'Qwen 1.5 (5B)',
-			desc: '',
+			desc: 'Good for Chinese.',
 			beta: true,
 			link: 'https://developers.cloudflare.com/workers-ai/models/qwen1.5-0.5b-chat'
 		},
 		{
 			id: '@hf/thebloke/openhermes-2.5-mistral-7b-awq',
 			name: 'OpenHermes 2.5 (7B)',
-			desc: '',
+			desc: 'Based on Mistral',
 			beta: true,
 			link: 'https://developers.cloudflare.com/workers-ai/models/openhermes-2.5-mistral-7b-awq'
 		},
 		{
 			id: '@hf/thebloke/neural-chat-7b-v3-1-awq',
 			name: 'NeuralChat v3.1 (7B)',
-			desc: '',
+			desc: 'Faster than Mistral',
 			beta: true,
 			link: 'https://developers.cloudflare.com/workers-ai/models/neural-chat-7b-v3-1-awq'
 		}
