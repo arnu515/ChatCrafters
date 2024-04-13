@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Separator } from 'bits-ui'
 	import { env } from '$env/dynamic/public'
-	import { PencilIcon, SendIcon, TrashIcon } from 'lucide-svelte'
+	import { PencilIcon, SendIcon, StopCircleIcon, TrashIcon } from 'lucide-svelte'
 	import ShareDialog from './shareDialog.svelte'
 	import ReportDialog from './reportDialog.svelte'
 	import EditDialog from './editDialog.svelte'
@@ -27,6 +27,7 @@
 	let loadingMessages = false
 	let messageBeingGenerated: string | undefined
 	let sendingMessage = false
+	let generateController: AbortController | undefined
 
 	let isEditDialogOpen = false
 	let editMessageError = ''
@@ -97,6 +98,7 @@
 					: messageBeingGenerated
 		)
 		messageBeingGenerated = undefined
+		generateController = undefined
 	}
 
 	function addMessage(by: Message['by'], text: Message['text']) {
@@ -148,7 +150,8 @@
 			})
 
 			if (res.headers.get('content-type') === 'text/event-stream') {
-				parseSSE(res, onGenerate, doneGenerating)
+				generateController = new AbortController()
+				parseSSE(res, onGenerate, doneGenerating, generateController.signal)
 				;(document.getElementById('message') as HTMLInputElement).value = ''
 				addMessage('user', message.trim())
 			} else {
@@ -196,7 +199,8 @@
 			})
 
 			if (res.headers.get('content-type') === 'text/event-stream') {
-				parseSSE(res, onGenerate, doneGenerating)
+				generateController = new AbortController()
+				parseSSE(res, onGenerate, doneGenerating, generateController.signal)
 				isEditDialogOpen = false
 				addMessage('user', msg.trim())
 			} else {
@@ -452,10 +456,15 @@
 					class="btn-circle btn-neutral grid place-items-center"
 					aria-label="Send"
 					title="Send message"
+					type={generateController ? 'button' : 'submit'}
+					on:click={generateController?.abort.bind(generateController)}
 				>
 					{#if sendingMessage}
 						<span class="loading loading-spinner"></span>
+					{:else if generateController}
+						<StopCircleIcon class="h-6 w-6" />
 					{:else if typeof messageBeingGenerated !== 'undefined'}
+						<!-- For some reason the controller is undefined -->
 						<span class="loading loading-ring"></span>
 					{:else}
 						<SendIcon class="h-6 w-6" />

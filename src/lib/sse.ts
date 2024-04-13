@@ -91,17 +91,27 @@ function getOnLine(onMessage?: OnMessage) {
 	}
 }
 
-export function parseSSE(res: Response, onMessage?: OnMessage, onDone?: () => MaybePromise<void>) {
+export function parseSSE(
+	res: Response,
+	onMessage?: OnMessage,
+	onDone?: () => MaybePromise<void>,
+	signal?: AbortSignal
+) {
 	if (!res.body) throw new Error('parseSSE: No body in response')
 	const stream = res.body.getReader()
 	const onLine = getOnLine(onMessage)
 	const onChunk = getOnChunk(onLine)
+	let isNotAborted = true
+	signal?.addEventListener('abort', () => {
+		isNotAborted = false
+	})
 	;(async () => {
-		while (true) {
+		while (isNotAborted) {
 			const { done, value } = await stream.read()
 			if (value) onChunk(value)
 			if (done) break
 		}
+		await stream.cancel()
 		onDone?.()
 	})()
 }
