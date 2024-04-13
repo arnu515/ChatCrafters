@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Separator } from 'bits-ui'
 	import { env } from '$env/dynamic/public'
-	import { SendIcon, TrashIcon, BanIcon } from 'lucide-svelte'
+	import { SendIcon, TrashIcon } from 'lucide-svelte'
 	import ShareDialog from './shareDialog.svelte'
 	import ReportDialog from './reportDialog.svelte'
 	import { onMount, onDestroy, tick } from 'svelte'
@@ -9,6 +9,7 @@
 	import rt from 'dayjs/plugin/relativeTime.js'
 	import { z } from 'zod'
 	import { parseSSE } from '$lib/sse'
+	import VoiceButton from './voiceButton.svelte'
 
 	dayjs.extend(rt)
 
@@ -347,6 +348,13 @@
 				{/if}
 			</div>
 			<form on:submit|preventDefault={sendMessage} class="m-4 mt-0 flex items-center gap-2">
+				<VoiceButton
+					personaId={data.persona.id}
+					on:recognise={({ detail }) => {
+						const msg = document.getElementById('message')
+						if (msg) msg.value = (msg.value.trim() + ' ' + detail).trim()
+					}}
+				/>
 				<input
 					type="text"
 					name="message"
