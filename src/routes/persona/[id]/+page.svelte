@@ -435,7 +435,7 @@
 					{/if}
 				{/if}
 			</div>
-			<form on:submit|preventDefault={sendMessage} class="m-4 mt-0 flex items-center gap-2">
+			<form on:submit|preventDefault={sendMessage} class="m-4 flex items-center gap-2">
 				<VoiceButton
 					on:recognise={({ detail }) => {
 						const msg = document.getElementById('message')
@@ -463,15 +463,12 @@
 					}}
 					rows={1}
 					on:input={e => {
-						e.currentTarget.style.height = ''
-						// height for one row = 46px
-						// height for two rows = 46 + 22 px
-						// height for every row after that = height + 24px
-						// extra 2px added for buffer area (so scrollbar doesn't appear)
-						// max height = 5 rows (46 + 22 + 3(24) px)
-						e.currentTarget.style.height = Math.min(e.currentTarget.scrollHeight + 2, 142) + 'px'
+						// 20 is the padding-top + padding-bottom
+						// 24 is the line-height
+						e.currentTarget.rows = 1
+						e.currentTarget.rows = Math.min(Math.round((e.currentTarget.scrollHeight - 20) / 24), 5)
 					}}
-					class="textarea textarea-bordered w-full resize-none pt-3 text-base placeholder:text-gray-300 dark:placeholder:text-gray-600"
+					class="textarea textarea-bordered w-full resize-none overflow-hidden pt-3 text-base placeholder:text-gray-300 dark:placeholder:text-gray-600"
 				/>
 				<button
 					class="btn-circle btn-neutral grid place-items-center"
