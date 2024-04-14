@@ -360,13 +360,13 @@
 								</div>
 							</div>
 							{#if msg.showHeader}
-								<div class="font-heading chat-header mb-1 mt-4">
+								<div class="font-heading chat-header mb-1 mt-2">
 									{msg.by === 'persona' ? data.persona.name : 'You'}
 								</div>
 							{/if}
 							<div class="chat-bubble whitespace-pre-line">{msg.text}</div>
 							{#if msg.showFooter}
-								<div class="chat-footer mb-4 mt-1 flex items-center gap-2 text-xs opacity-50">
+								<div class="chat-footer mb-2 mt-1 flex items-center gap-2 text-xs opacity-50">
 									<time datetime={msg.at.toISOString()} title={msg.at.toISOString()}
 										>{dayjs().to(dayjs(msg.at))}</time
 									>
