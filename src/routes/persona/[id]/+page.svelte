@@ -370,7 +370,7 @@
 									<time datetime={msg.at.toISOString()} title={msg.at.toISOString()}
 										>{dayjs().to(dayjs(msg.at))}</time
 									>
-									{#if msg.by === 'user'}
+									{#if msg.by === 'user' && typeof messageBeingGenerated === 'undefined'}
 										<button
 											on:click={() => {
 												messageTextBeingEdited = msg.text
