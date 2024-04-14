@@ -414,7 +414,7 @@
 							<div class="font-heading chat-header mb-1 mt-4">
 								{data.persona.name}
 							</div>
-							<div class="chat-bubble">
+							<div class="chat-bubble whitespace-pre-line">
 								{#if !messageBeingGenerated.trim()}
 									<div class="flex justify-center py-2">
 										<span class="loading loading-dots"></span>
