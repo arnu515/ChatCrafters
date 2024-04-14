@@ -26,13 +26,13 @@
 				<span class="animate-bounce text-primary opacity-50"><ArrowDown class="h-8 w-8" /></span>
 			</div>
 		</div>
-		<div class="row-start-1 flex flex-col items-center justify-center">
+		<div class="row-start-1 flex flex-col items-center justify-center p-4">
 			<div class="mockup-phone">
 				<div class="camera"></div>
 				<div class="display">
 					<img
 						src="/1.jpg"
-						class="h-[800px] w-[400px] lg:h-[1000px] lg:w-[500px]"
+						class="h-[600px] w-[275px] lg:h-[1000px] lg:w-[500px]"
 						alt="A screenshot of the messages between a persona and the user"
 					/>
 				</div>
@@ -128,7 +128,10 @@
 		>.
 	</p>
 	<p class="flex gap-4 opacity-75">
-		<a href="https://dev.to/arnu515/chatcrafters-chat-with-ai-powered-personas-40o0" class="link">My submission post</a> |
+		<a href="https://dev.to/arnu515/chatcrafters-chat-with-ai-powered-personas-40o0" class="link"
+			>My submission post</a
+		>
+		|
 		<a href="https://github.com/arnu515/chatcrafters" class="link">GitHub</a>
 	</p>
 	<div class="text-sm opacity-50">Made with ❤️ in 🇮🇳</div>
