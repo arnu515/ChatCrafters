@@ -152,8 +152,8 @@
 			if (res.headers.get('content-type') === 'text/event-stream') {
 				generateController = new AbortController()
 				parseSSE(res, onGenerate, doneGenerating, generateController.signal)
-				;(document.getElementById('message') as HTMLInputElement).value = ''
-				;(document.getElementById('message') as HTMLInputElement).style.height = ''
+				;(document.getElementById('message') as HTMLTextAreaElement).value = ''
+				;(document.getElementById('message') as HTMLTextAreaElement).rows = 1
 				addMessage('user', message.trim())
 			} else {
 				const data = await res.json()
