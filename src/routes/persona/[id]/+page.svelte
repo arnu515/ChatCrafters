@@ -153,6 +153,7 @@
 				generateController = new AbortController()
 				parseSSE(res, onGenerate, doneGenerating, generateController.signal)
 				;(document.getElementById('message') as HTMLInputElement).value = ''
+				;(document.getElementById('message') as HTMLInputElement).style.height = ''
 				addMessage('user', message.trim())
 			} else {
 				const data = await res.json()
@@ -363,7 +364,7 @@
 									{msg.by === 'persona' ? data.persona.name : 'You'}
 								</div>
 							{/if}
-							<div class="chat-bubble">{msg.text}</div>
+							<div class="chat-bubble whitespace-pre-line">{msg.text}</div>
 							{#if msg.showFooter}
 								<div class="chat-footer mb-4 mt-1 flex items-center gap-2 text-xs opacity-50">
 									<time datetime={msg.at.toISOString()} title={msg.at.toISOString()}
@@ -441,13 +442,36 @@
 						if (msg) msg.value = (msg.value.trim() + ' ' + detail).trim()
 					}}
 				/>
-				<input
-					type="text"
+				<textarea
 					name="message"
 					id="message"
 					aria-label="Message"
-					placeholder="Enter your message"
-					class="input input-bordered w-full"
+					placeholder="Enter your message."
+					on:keydown={e => {
+						// on smaller devices, enter goes to a new line, ctrl+enter submits the form.
+						// on larger devices, enter submits the form, shift+enter goes to a new line.
+						if (e.key === 'Enter') {
+							const isSmallerThanMdBreakpoint = window.innerWidth < 768
+							if (
+								(isSmallerThanMdBreakpoint && e.ctrlKey) ||
+								(!isSmallerThanMdBreakpoint && !e.shiftKey)
+							) {
+								e.preventDefault()
+								e.currentTarget.form?.requestSubmit()
+							}
+						}
+					}}
+					rows={1}
+					on:input={e => {
+						e.currentTarget.style.height = ''
+						// height for one row = 46px
+						// height for two rows = 46 + 22 px
+						// height for every row after that = height + 24px
+						// extra 2px added for buffer area (so scrollbar doesn't appear)
+						// max height = 5 rows (46 + 22 + 3(24) px)
+						e.currentTarget.style.height = Math.min(e.currentTarget.scrollHeight + 2, 142) + 'px'
+					}}
+					class="textarea textarea-bordered w-full resize-none pt-3 text-base placeholder:text-gray-300 dark:placeholder:text-gray-600"
 				/>
 				<button
 					class="btn-circle btn-neutral grid place-items-center"
@@ -494,7 +518,8 @@
 />
 
 <style lang="postcss">
-	#messages-box {
+	#messages-box,
+	#message {
 		scrollbar-color: theme(colors.base-100) theme(colors.base-300);
 	}
 </style>

@@ -40,10 +40,11 @@
 					<div class="label">
 						<span class="label-text">Enter new message</span>
 					</div>
-					<input
+					<textarea
 						id="message"
 						bind:value={message}
 						required
+						rows={4}
 						class="textarea textarea-bordered w-full font-mono text-base placeholder:text-gray-300 dark:placeholder:text-gray-600"
 						placeholder="Enter new message"
 					/>
